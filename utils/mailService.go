@@ -74,3 +74,37 @@ func SendAppointmentEmail(patientEmail, doctorName, appointmentDate, appointment
 	fmt.Println("Email sent successfully!")
 	return nil
 }
+
+func SendAppointmentComingEmail(patientEmail, doctorName, appointmentDate, appointmentTime, bookingTime string) error {
+	message := gomail.NewMessage()
+	message.SetHeader("From", "aditya3.collegeboard@gmail.com")
+	message.SetHeader("To", patientEmail)
+	message.SetHeader("Subject", "Appointment Coming")
+
+	htmlBody := `
+    <html>
+    <body>
+        <h1>Appointment Confirmation</h1>
+        <p>Dear Patient,</p>
+        <p>Your appointment with Dr. ` + doctorName + ` is about to come.</p>
+        <p><strong>Appointment Date:</strong> ` + appointmentDate + `</p>
+        <p><strong>Appointment Time:</strong> ` + appointmentTime + `</p>
+        <p><strong>Booking Time:</strong> ` + bookingTime + `</p>
+        <p>If you have any questions, please contact us.</p>
+        <p>Best regards,<br>Swaasthya</p>
+    </body>
+    </html>
+    `
+	message.SetBody("text/html", htmlBody)
+
+	// Initialize SMTP dialer
+	dialer := gomail.NewDialer("smtp.gmail.com", 587, "aditya3.collegeboard@gmail.com", "ehnxaubjqelkotks") // Update with your SMTP server details
+
+	// Send email
+	if err := dialer.DialAndSend(message); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	fmt.Println("Email sent successfully!")
+	return nil
+}

@@ -14,13 +14,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type NorthConsumer struct {
+type SouthConsumer struct {
 	Consumer sarama.Consumer
 	Topics   []string
 }
 
 // NewNorthConsumer initializes a new Kafka consumer for the north region (multiple topics)
-func NewNorthConsumer(broker string, topics []string) (*NorthConsumer, error) {
+func NewSouthConsumer(broker string, topics []string) (*SouthConsumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 
@@ -34,11 +34,11 @@ func NewNorthConsumer(broker string, topics []string) (*NorthConsumer, error) {
 	log.Printf("Kafka consumer created successfully, subscribing to topics: %v", topics)
 
 	// Return a NorthConsumer instance with the list of topics
-	return &NorthConsumer{Consumer: consumer, Topics: topics}, nil
+	return &SouthConsumer{Consumer: consumer, Topics: topics}, nil
 }
 
 // Listen starts the consumer and listens for messages on the specified topics
-func (nc *NorthConsumer) Listen() {
+func (nc *NorthConsumer) ListenSouth() {
 	defer func() {
 		if err := nc.Consumer.Close(); err != nil {
 			log.Printf("Error closing consumer: %v\n", err)
@@ -65,7 +65,7 @@ func (nc *NorthConsumer) Listen() {
 }
 
 // consumeMessages handles message consumption for each topic
-func (nc *NorthConsumer) consumeMessages(partitionConsumer sarama.PartitionConsumer) {
+func (nc *NorthConsumer) consumeSouthMessages(partitionConsumer sarama.PartitionConsumer) {
 	for msg := range partitionConsumer.Messages() {
 		// Log received message and metadata
 		log.Printf("Received message from topic %s: %s\n", msg.Topic, string(msg.Value))
@@ -81,7 +81,7 @@ func (nc *NorthConsumer) consumeMessages(partitionConsumer sarama.PartitionConsu
 }
 
 // processMessage is a placeholder function for processing the received Kafka message
-func processMessage(topic string, msg *sarama.ConsumerMessage) error {
+func processSouthMessage(topic string, msg *sarama.ConsumerMessage) error {
 	if database.NorthDB == nil {
 		log.Fatal("NorthDB is not initialized!")
 		return fmt.Errorf("NorthDB is not initialized")
@@ -143,7 +143,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		staff.Username = fmt.Sprintf("%s%s", staff.ContactNumber, strings.ReplaceAll(strings.ToLower(staff.FullName), " ", ""))
 
 		// Save the staff to the database
-		if err := database.NorthDB.Create(&staff).Error; err != nil {
+		if err := database.SouthDB.Create(&staff).Error; err != nil {
 			log.Printf("Failed to save staff data to database: %v", err)
 			return fmt.Errorf("failed to save staff data to database: %v", err)
 		}
@@ -160,7 +160,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		}
 
-		if err := database.NorthDB.Create(&patients).Error; err != nil {
+		if err := database.SouthDB.Create(&patients).Error; err != nil {
 			log.Printf("Error creating patients in database: %v", err)
 			return fmt.Errorf(err.Error())
 		}
@@ -174,13 +174,13 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		}
 
-		if err := database.NorthDB.Create(&patient_Admit).Error; err != nil {
+		if err := database.SouthDB.Create(&patient_Admit).Error; err != nil {
 			log.Printf("Error creating patients in database: %v", err)
 			return fmt.Errorf(err.Error())
 		}
 		var availableRoom database.Room
 		availableRoom.IsOccupied = true
-		if err := database.NorthDB.Save(&availableRoom).Error; err != nil {
+		if err := database.SouthDB.Save(&availableRoom).Error; err != nil {
 			log.Printf("Error saving patient_admit data: %v", err)
 			return err
 		}
@@ -189,7 +189,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		publishPatientCountUpdate("North", 1)
 
 		// Publish the message to Redis to notify other services (e.g., compounder, dashboard)
-		if err := database.RedisClient.Publish(database.Ctx, "patient_admission", message).Err(); err != nil {
+		if err := database.RedisClient.Publish(database.Ctx, "patient_admission_south", message).Err(); err != nil {
 			log.Printf("Error publishing patient admission notification to Redis: %v", err)
 			return fmt.Errorf("failed to notify compounder via Redis: %v", err)
 		}
@@ -211,7 +211,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		// Find the bed based on BedID (patient_room_no) and BedType
 		var bed database.PatientBeds
-		if err := database.NorthDB.Where("patient_room_no = ? AND patient_bed_type = ?", patientAdmit.BedID, patientAdmit.BedType).First(&bed).Error; err != nil {
+		if err := database.SouthDB.Where("patient_room_no = ? AND patient_bed_type = ?", patientAdmit.BedID, patientAdmit.BedType).First(&bed).Error; err != nil {
 			// If no bed is found, log an error and return
 			log.Printf("Error finding bed with room number %s and bed type %s: %v", patientAdmit.BedID, patientAdmit.BedType, err)
 			return fmt.Errorf("Error finding bed with room number %s and bed type %s: %v", patientAdmit.BedID, patientAdmit.BedType, err)
@@ -221,7 +221,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		bed.Hospitalized = patientAdmit.IsAdmitted
 
 		// Save the updated bed status to the database
-		if err := database.NorthDB.Save(&bed).Error; err != nil {
+		if err := database.SouthDB.Save(&bed).Error; err != nil {
 			log.Printf("Error saving bed data for room %s and bed type %s: %v", patientAdmit.BedID, patientAdmit.BedType, err)
 			return fmt.Errorf("Error saving bed data: %v", err)
 		}
@@ -240,14 +240,14 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		}
 
 		// Save the appointment to the North region database
-		if err := database.NorthDB.Create(&appointment).Error; err != nil {
+		if err := database.SouthDB.Create(&appointment).Error; err != nil {
 			log.Printf("Error saving appointment for patient %s on %s at %s: %v", appointment.PatientID, appointment.AppointmentDate, appointment.AppointmentTime, err)
 			return fmt.Errorf("Error saving appointment: %v", err)
 		}
 
 		// Fetch doctor details from North region database
 		var doctor database.Doctors
-		if err := database.NorthDB.Where("doctor_id = ?", appointment.DoctorID).First(&doctor).Error; err != nil {
+		if err := database.SouthDB.Where("doctor_id = ?", appointment.DoctorID).First(&doctor).Error; err != nil {
 			return fmt.Errorf("Error fetching doctor details: %v", err)
 		}
 
@@ -330,13 +330,9 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 	return nil
 }
 
-func generatePassword(fullName, username string) string {
-	// For simplicity, we combine full name and username to generate a password
-	return fmt.Sprintf("%s%s", fullName, username)
-}
-func publishPatientCountUpdate(region string, newCount int) {
+func publishPatientCountUpdateSouth(region string, newCount int) {
 	message := fmt.Sprintf("Patient count updated for region %s: %d", region, newCount)
-	if err := database.RedisClient.Publish(context.Background(), "patient_count_update", message).Err(); err != nil {
+	if err := database.RedisClient.Publish(context.Background(), "patient_count_update_South", message).Err(); err != nil {
 		log.Printf("Error publishing patient count update to Redis: %v", err)
 	}
 }

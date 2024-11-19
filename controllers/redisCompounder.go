@@ -83,3 +83,21 @@ func SubscribeToAppointmentUpdates() {
 		// You can trigger any action here, such as updating the frontend
 	}
 }
+
+func startPatientCountSubscriber() {
+	// Subscribe to the "patient_count_update" channel
+	pubsub := database.RedisClient.Subscribe(context.Background(), "patient_count_update")
+	defer pubsub.Close()
+
+	// Log the subscription
+	log.Println("Subscribed to patient count update channel")
+
+	// Get the channel to listen for messages
+	ch := pubsub.Channel()
+
+	for msg := range ch {
+		log.Printf("Received patient count update: %s", msg.Payload)
+
+		fmt.Printf("Processed patient count update: %s\n", msg.Payload)
+	}
+}

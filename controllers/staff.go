@@ -311,28 +311,6 @@ func AdmitPatientForHospitalization(c *gin.Context) {
 	patient_beds.HospitalUsername = staff.Username
 	patient_beds.PatientRoomNo = availableRoom.RoomNumber
 
-	// Create a new PatientBeds entry without marking the patient as hospitalized
-	// newHospitalization := database.PatientBeds{
-	// 	PatientID:        patient.PatientID,
-	// 	FullName:         patient.FullName,
-	// 	ContactNumber:    patient.ContactNumber,
-	// 	Email:            patient.Email,
-	// 	Address:          patient.Address,
-	// 	City:             patient.City,
-	// 	State:            patient.State,
-	// 	PinCode:          patient.PinCode,
-	// 	Gender:           patient.Gender,
-	// 	Adhar:            patient.Adhar,
-	// 	HospitalID:       patient.HospitalID,
-	// 	HospitalName:     staff.HospitalName,
-	// 	HospitalUsername: staff.Username,
-	// 	DoctorName:       reqData.DoctorName,  // Use doctor name from the request
-	// 	Hospitalized:     false,               // Hospitalization flag will be updated by the compounder
-	// 	PaymentFlag:      reqData.PaymentFlag, // Use payment flag from the request
-	// 	PatientBedType:   database.BedsType(reqData.BedType),
-	// 	PatientRoomNo:    availableRoom.RoomNumber, // Use room number from the available room
-	// }
-
 	patientAdmit, err := json.Marshal(patient_beds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal hospital admin data to JSON"})

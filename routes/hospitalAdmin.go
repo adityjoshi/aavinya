@@ -36,7 +36,7 @@ func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 	incomingRoutes.POST("/doctor", middleware.AuthRequired("Admin", ""), controllers.RegisterDoctor)
 	// incomingRoutes.GET("/getdoctor/:id", controllers.GetDoctor)
 	// incomingRoutes.POST("/bookAppointment", controllers.CreateAppointment)
-	incomingRoutes.POST("/markAppointment/:appointment_id", controllers.MarkAppointmentAsDone)
+	incomingRoutes.POST("/markAppointment/:appointment_id", controllers.RemoveAppointmentFromQueue)
 
 	adminRoutes := incomingRoutes.Group("/admin")
 	adminRoutes.Use(middleware.AuthRequired("Admin", ""))
@@ -45,7 +45,7 @@ func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 		//adminRoutes.GET("/gethospital/:id", middleware.OtpAuthRequireed, controllers.GetHospital)
 		adminRoutes.POST("/doctor", middleware.OtpAuthRequireed, controllers.RegisterDoctor)
 		adminRoutes.GET("/getdoctor/:id", middleware.OtpAuthRequireed, controllers.GetDoctor)
-		adminRoutes.POST("/v", middleware.OtpAuthRequireed, func(c *gin.Context) {
+		adminRoutes.POST("/createAppointment", middleware.OtpAuthRequireed, func(c *gin.Context) {
 			c.Set("km", km)
 			controllers.CreateAppointment(c)
 		})
@@ -66,10 +66,6 @@ func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 			c.Set("km", km)
 			controllers.RegisterPatient(c)
 		})
-		// receptionistRoute.POST("/admit", func(c *gin.Context) {
-		// 	c.Set("km", km)
-		// 	controllers.AdmitPatientForHospitalization(c)
-		// })
 	}
 	compounderRoute := incomingRoutes.Group("/compounder")
 	compounderRoute.Use(middleware.AuthRequired("Staff", "Compounder"))
