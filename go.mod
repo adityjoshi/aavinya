@@ -1,4 +1,4 @@
-module github.com/adityjoshi/avinyaa
+module github.com/adityjoshi/aavinya
 
 go 1.22.2
 
