@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/adityjoshi/avinyaa/database"
-	kafkamanager "github.com/adityjoshi/avinyaa/kafka/kafkaManager"
-	"github.com/adityjoshi/avinyaa/utils"
+	"github.com/adityjoshi/aavinya/database"
+	kafkamanager "github.com/adityjoshi/aavinya/kafka/kafkaManager"
+	"github.com/adityjoshi/aavinya/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )

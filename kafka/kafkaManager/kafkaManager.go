@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/adityjoshi/avinyaa/kafka" // Correct path to producer
+	"github.com/adityjoshi/aavinya/kafka" // Correct path to producer
 )
 
 // KafkaManager is responsible for managing Kafka producers and sending messages to topics

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"github.com/adityjoshi/avinyaa/database"
-	"github.com/adityjoshi/avinyaa/utils"
+	"github.com/adityjoshi/aavinya/database"
+	"github.com/adityjoshi/aavinya/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -100,7 +100,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		}
 		if err := database.NorthDB.Create(&admin); err != nil {
 			log.Printf("Failed to save hospital_admin data: %v", err.Error)
-			return fmt.Errorf("Failed to write to the DB", err.Error)
+			return fmt.Errorf("Failed to write to the DB", err.Error, err)
 		}
 		// Add your logic for processing hospital_admin messages here
 
@@ -117,7 +117,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		if err := database.NorthDB.Create(&hospital).Error; err != nil {
 			log.Printf("Error creating hospital in database: %v", err)
-			return fmt.Errorf(err.Error())
+			return fmt.Errorf(err.Error(), err)
 		}
 
 	case "hospital_staff":

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/adityjoshi/avinyaa/database"
-	kafkamanager "github.com/adityjoshi/avinyaa/kafka/kafkaManager"
+	"github.com/adityjoshi/aavinya/database"
+	kafkamanager "github.com/adityjoshi/aavinya/kafka/kafkaManager"
 	"github.com/gin-gonic/gin"
 )
 

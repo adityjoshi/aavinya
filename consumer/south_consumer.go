@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"github.com/adityjoshi/avinyaa/database"
-	"github.com/adityjoshi/avinyaa/utils"
+	"github.com/adityjoshi/aavinya/database"
+	"github.com/adityjoshi/aavinya/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

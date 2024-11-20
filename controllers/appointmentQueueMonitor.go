@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/adityjoshi/avinyaa/database" // Import your database package
-	"github.com/adityjoshi/avinyaa/utils"    // Utility functions like email notifications
+	"github.com/adityjoshi/aavinya/database" // Import your database package
+	"github.com/adityjoshi/aavinya/utils"    // Utility functions like email notifications
 	"gorm.io/gorm"
 )
 

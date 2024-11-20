@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/adityjoshi/avinyaa/database"
-	"github.com/adityjoshi/avinyaa/utils"
+	"github.com/adityjoshi/aavinya/database"
+	"github.com/adityjoshi/aavinya/utils"
 	"github.com/gin-gonic/gin"
 )
 

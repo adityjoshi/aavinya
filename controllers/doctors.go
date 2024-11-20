@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/adityjoshi/avinyaa/database"
-	"github.com/adityjoshi/avinyaa/utils"
+	"github.com/adityjoshi/aavinya/database"
+	"github.com/adityjoshi/aavinya/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 

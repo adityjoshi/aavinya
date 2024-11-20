@@ -3,9 +3,9 @@ package routes
 import (
 	"time"
 
-	"github.com/adityjoshi/avinyaa/controllers"
-	kafkamanager "github.com/adityjoshi/avinyaa/kafka/kafkaManager"
-	"github.com/adityjoshi/avinyaa/middleware"
+	"github.com/adityjoshi/aavinya/controllers"
+	kafkamanager "github.com/adityjoshi/aavinya/kafka/kafkaManager"
+	"github.com/adityjoshi/aavinya/middleware"
 	"github.com/gin-gonic/gin"
 )
 
