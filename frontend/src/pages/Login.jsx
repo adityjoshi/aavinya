@@ -3,7 +3,7 @@ import { useState } from "react";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [region, setRegion] = useState("North"); // Initialize region state
+  const [region, setRegion] = useState("north"); // Initialize region state
   const [showPassword, setShowPassword] = useState(false); // State to manage password visibility
 
   const onSubmit = async (e) => {
@@ -11,7 +11,7 @@ function Login() {
 
     try {
       const body = { email, password, region }; // Include region in the request body
-      const response = await fetch("http://localhost:2426/login", {
+      const response = await fetch("http://localhost:2426/adminLogin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
@@ -195,7 +195,7 @@ function Login() {
                     value={region}
                     onChange={(e) => setRegion(e.target.value)}
                   >
-                    <option value="North">North</option>
+                    <option value="North">north</option>
                     <option value="South">South</option>
                     <option value="East">East</option>
                     <option value="West">West</option>

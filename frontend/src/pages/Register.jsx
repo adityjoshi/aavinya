@@ -110,7 +110,7 @@ function Register() {
     try {
       const full_name = `${firstName} ${lastName}`;
       let body = { full_name, email, password, contact_number, region, user_type };
-      const response = await fetch("http://localhost:2426/register", {
+      const response = await fetch("http://localhost:2426/hospitaladmin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
