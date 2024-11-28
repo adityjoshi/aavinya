@@ -1,3 +1,6 @@
+import LoginOTPVerification from "./pages/LoginOtpPage"
+import SignupOTPVerification from "./pages/SignupOtpPage"
+
 export const Roles = {
     WARDEN : 'warden',
     STUDENT : 'student',
@@ -19,6 +22,8 @@ export const user_type={
     SIGNUP_PAGE : '/signup',
     LOGIN_PAGE : '/login',
     DASHBOARD_PAGE : '/',
+    LoginOTPVerification_Page :'/loginotpverification',
+    SignupOTPVerification_Page :'/signupotpverification'
 }
 
 //export const apiLink = "http://localhost:3000"
