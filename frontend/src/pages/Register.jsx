@@ -82,7 +82,9 @@ function Register() {
       const full_name = `${firstName} ${lastName}`; 
       let body = { full_name, email, password, contact_number, region, user_type };
       console.log(body)
-      const response = await fetch("http://localhost:2426/register", {
+      
+      const response = await fetch("http://localhost:2426/hospitaladmin", {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

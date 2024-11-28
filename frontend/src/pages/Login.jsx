@@ -12,7 +12,8 @@ console.log(email);
     try {
       const body = { email, password, region }; // Include region in the request body
       console.log(body);
-      const response = await fetch("http://localhost:2426/login", {
+
+      const response = await fetch("http://localhost:2426/adminLogin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),

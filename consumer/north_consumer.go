@@ -162,7 +162,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		if err := database.NorthDB.Create(&patients).Error; err != nil {
 			log.Printf("Error creating patients in database: %v", err)
-			return fmt.Errorf(err.Error())
+			return fmt.Errorf(err.Error(), err)
 		}
 	case "patient_Admit":
 		log.Printf("Processing patient_registration message: %s", string(msg.Value))
@@ -311,7 +311,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		err = database.RedisClient.LPush(database.Ctx, redisKey, appointmentJSON).Err()
 		if err != nil {
 			log.Printf("Error adding appointment to Redis queue: %v", err)
-			return fmt.Errorf("Error adding appointment to Redis queue: %v", err)
+			return fmt.Errorf("Error adding appointment to Redis queue: %v", err.Error())
 		}
 
 		fmt.Printf("Appointment for department %s added to Redis under key %s\n", doctor.Department, redisKey)
