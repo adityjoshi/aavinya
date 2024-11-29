@@ -7,21 +7,14 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [contact_number, setcontact] = useState("");
+  const [contact_number, setContact] = useState("");
   const [region, setRegion] = useState("");
   const [user_type, setRole] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [passwordMatch, setPasswordMatch] = useState(null);
-  
+
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  
-  const [otp, setOtp] = useState("");
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpError, setOtpError] = useState(""); // Added OTP error state
-  
-  // New state for field errors
+
   const [fieldErrors, setFieldErrors] = useState({});
 
   const togglePasswordVisibility = () => {
@@ -58,23 +51,6 @@ function Register() {
     }
   };
 
-  const handleOtpChange = (e) => {
-    setOtp(e.target.value);
-    setOtpError(""); // Clear OTP error when user types
-  };
-
-  const verifyOtp = () => {
-    if (otp === "123456") {
-      setOtpVerified(true);
-      setIsOtpModalOpen(false);
-      // Show success popup
-      alert("OTP verified successfully!");
-    } else {
-      // Show error message
-      setOtpError("Incorrect OTP. Please try again.");
-    }
-  };
-
   const validateFields = () => {
     const errors = {};
     if (!firstName) errors.firstName = "First name is required";
@@ -85,6 +61,9 @@ function Register() {
     if (!user_type) errors.user_type = "User type is required";
     if (!password) errors.password = "Password is required";
     if (!confirmPassword) errors.confirmPassword = "Confirm password is required";
+    if (password && confirmPassword && password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -94,44 +73,30 @@ function Register() {
     if (!validateFields()) {
       return;
     }
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
     if (emailError || phoneError) {
       alert("Please fix the errors before submitting");
       return;
     }
-    if (!otpVerified) {
-      alert("Please verify OTP first!");
-      return;
-    }
 
     try {
-      const full_name = `${firstName} ${lastName}`;
+      const full_name = `${firstName} ${lastName}`; 
       let body = { full_name, email, password, contact_number, region, user_type };
+      console.log(body)
+      
       const response = await fetch("http://localhost:2426/hospitaladmin", {
+
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = await response.json();
       if (data.jwtToken) {
-        window.location = "/";
+        window.location = "/signupotpverification";
       } else {
         alert("User Created");
       }
     } catch (err) {
       console.log(err.message);
-    }
-  };
-
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-    if (e.target.value === password) {
-      setPasswordMatch(true);
-    } else {
-      setPasswordMatch(false);
     }
   };
 
@@ -143,7 +108,7 @@ function Register() {
             <h4 className="mb-2 font-medium text-gray-700 xl:text-xl">Welcome!</h4>
             <p className="mb-6 text-gray-500">Please sign-in to access your account</p>
 
-            <form className="mb-4" action="#" method="POST">
+            <form className="mb-4" onSubmit={onSubmit}>
               <div className="mb-4 flex flex-wrap space-x-4">
                 <div className="flex-1">
                   <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">First Name</label>
@@ -188,7 +153,7 @@ function Register() {
                     type="text"
                     className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
                     placeholder="Enter your phone number"
-                    onChange={(e) => setcontact(e.target.value)}
+                    onChange={(e) => setContact(e.target.value)}
                     onBlur={handlePhoneBlur}
                     required
                   />
@@ -247,34 +212,23 @@ function Register() {
                 </div>
                 <div className="flex-1">
                   <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Confirm Password</label>
-                  <div className="relative">
-                    <input
-                      type="password"
-                      className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                      placeholder="Confirm your password"
-                      onChange={handleConfirmPasswordChange}
-                      required
-                    />
-                    {passwordMatch === false && <p className="text-red-500 text-sm">Passwords do not match!</p>}
-                  </div>
+                  <input
+                    type="password"
+                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
+                    placeholder="Confirm your password"
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
                   {fieldErrors.confirmPassword && <p className="text-red-500 text-sm">{fieldErrors.confirmPassword}</p>}
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (validateFields()) {
-                      setIsOtpModalOpen(true);
-                    }
-                  }}
-                  className="w-full rounded-md bg-blue-500 py-2 text-white text-sm uppercase"
-                >
-                  Sign Up
-                </button>
-              </div>
-
+              <button 
+                type="submit"
+                className="mt-4 w-full rounded-md bg-blue-500 py-2 text-white font-medium hover:bg-blue-600"
+              >
+                Sign Up
+              </button>
             </form>
             <p className="mb-4 text-center">
               Already have an account? <a href="/login" className="text-indigo-500">Login</a>
@@ -282,44 +236,8 @@ function Register() {
           </div>
         </div>
       </div>
-
-      {isOtpModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-md w-96">
-            <h4 className="mb-4 text-lg font-medium">Enter OTP</h4>
-            <input
-              type="text"
-              className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-              placeholder="Enter OTP"
-              onChange={handleOtpChange}
-              value={otp}
-            />
-            {otpError && <p className="text-red-500 text-sm mt-2">{otpError}</p>} {/* Added OTP error display */}
-            <div className="mt-4 flex justify-between">
-              <button
-                type="button"
-                onClick={verifyOtp}
-                className="bg-blue-500 text-white py-2 px-4 rounded-md"
-              >
-                Verify OTP
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOtpModalOpen(false);
-                  setOtpError(""); // Clear OTP error on cancel
-                }}
-                className="bg-gray-500 text-white py-2 px-4 rounded-md"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 export default Register;
-

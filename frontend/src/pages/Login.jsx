@@ -5,12 +5,14 @@ function Login() {
   const [password, setPassword] = useState("");
   const [region, setRegion] = useState("north"); // Initialize region state
   const [showPassword, setShowPassword] = useState(false); // State to manage password visibility
-
+console.log(email);
   const onSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const body = { email, password, region }; // Include region in the request body
+      console.log(body);
+
       const response = await fetch("http://localhost:2426/adminLogin", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -20,9 +22,9 @@ function Login() {
       const data = await response.json();
       console.log(data);
 
-      if (data.jwtToken) {
+      if (data.message === "OTP sent to email. Please verify the OTP") {
         localStorage.setItem("jwtToken", data.jwtToken);
-        window.location = "/";
+        window.location = "/loginotpverification";
       } else {
         alert("Invalid credentials. Please check your email and password.");
       }
@@ -135,7 +137,7 @@ function Login() {
                   </div>
                   <div className="relative flex w-full flex-wrap items-stretch">
                     <input
-                      type={showPassword ? "text" : "password"} // Toggle between text and password type
+                      type={showPassword ? "text" : "password"} 
                       id="password"
                       className="relative block flex-auto cursor-text appearance-none rounded-md border border-gray-400 bg--100 py-2 px-3 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:text-gray-600 focus:shadow"
                       name="password"
@@ -195,10 +197,10 @@ function Login() {
                     value={region}
                     onChange={(e) => setRegion(e.target.value)}
                   >
-                    <option value="North">north</option>
-                    <option value="South">South</option>
-                    <option value="East">East</option>
-                    <option value="West">West</option>
+                    <option value="north">North</option>
+                    <option value="south">South</option>
+                    <option value="east">East</option>
+                    <option value="west">West</option>
                   </select>
                 </div>
                 {/* /Region Dropdown */}
