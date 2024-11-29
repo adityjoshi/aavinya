@@ -22,7 +22,7 @@ export const user_type={
     SIGNUP_PAGE : '/signup',
     LOGIN_PAGE : '/login',
     DASHBOARD_PAGE : '/',
-    LoginOTPVerification_Page :'/loginotpverification',
+    LoginOTPVerification_Page :'/verifyotp',
     SignupOTPVerification_Page :'/signupotpverification'
 }
 

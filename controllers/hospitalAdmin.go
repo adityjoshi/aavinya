@@ -138,7 +138,7 @@ func AdminLogin(c *gin.Context) {
 	}
 
 	// Respond with message to enter OTP
-	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP.", "token": token, "region": admin.Region})
+	c.JSON(http.StatusOK, gin.H{"message": "success", "token": token, "region": admin.Region})
 }
 
 func VerifyAdminOTP(c *gin.Context) {
@@ -196,7 +196,7 @@ func VerifyAdminOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"loggedin": "success", "region": regionStr})
+	c.JSON(http.StatusOK, gin.H{"message": "success", "region": regionStr})
 }
 
 func RegisterHospital(c *gin.Context) {
