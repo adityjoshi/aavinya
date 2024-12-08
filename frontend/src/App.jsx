@@ -7,6 +7,10 @@ import SignupOTPVerification from './pages/SignupOtpPage'
 import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
 import { RoutesPathName } from './constants';
 import PrivateRoute from './context/PrivateRoute';
+import RegisterDoctor from './pages/RegisterDoctor'
+import RegisterHospital from './pages/RegisterHospital'
+import RegisterStaff from './pages/RegisterStaff'
+import AddBeds from './pages/AddBeds'
 
 
 const router = createBrowserRouter([
@@ -37,6 +41,30 @@ const router = createBrowserRouter([
 		path: RoutesPathName.DASHBOARD_PAGE,
 		element: (
 			<PrivateRoute />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_DOC,
+		element: (
+			<RegisterDoctor />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_HOSPITAL,
+		element: (
+			<RegisterHospital />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_STAFF,
+		element: (
+			<RegisterStaff />
+		),
+	},
+	{
+		path: RoutesPathName.ADD_BED,
+		element: (
+			<AddBeds />
 		),
 	}
      ]);

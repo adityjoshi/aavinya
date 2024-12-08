@@ -1,240 +1,218 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [contact_number, setContact] = useState("");
-  const [region, setRegion] = useState("");
-  const [user_type, setRole] = useState("");
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    contactNumber: "",
+    region: "",
+    userType: "",
+  });
+
   const [passwordVisible, setPasswordVisible] = useState(false);
-
-  const [emailError, setEmailError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const phonePattern = /^[0-9]{10}$/;
-    return phonePattern.test(phone);
-  };
-
-  const handleEmailBlur = () => {
-    if (!email) {
-      setEmailError("Email is required");
-    } else if (!validateEmail(email)) {
-      setEmailError("Please enter a valid email address");
-    } else {
-      setEmailError("");
-    }
-  };
-
-  const handlePhoneBlur = () => {
-    if (!contact_number) {
-      setPhoneError("Phone number is required");
-    } else if (!validatePhone(contact_number)) {
-      setPhoneError("Please enter a valid 10-digit phone number");
-    } else {
-      setPhoneError("");
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const validateFields = () => {
-    const errors = {};
-    if (!firstName) errors.firstName = "First name is required";
-    if (!lastName) errors.lastName = "Last name is required";
-    if (!email) errors.email = "Email is required";
-    if (!contact_number) errors.contact_number = "Phone number is required";
-    if (!region) errors.region = "Region is required";
-    if (!user_type) errors.user_type = "User type is required";
-    if (!password) errors.password = "Password is required";
-    if (!confirmPassword) errors.confirmPassword = "Confirm password is required";
-    if (password && confirmPassword && password !== confirmPassword) {
-      errors.confirmPassword = "Passwords do not match";
-    }
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
+    const newErrors = {};
+    const { firstName, lastName, email, password, confirmPassword, contactNumber, region, userType } = formData;
+
+    if (!firstName) newErrors.firstName = "First name is required";
+    if (!lastName) newErrors.lastName = "Last name is required";
+
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email) newErrors.email = "Email is required";
+    else if (!emailPattern.test(email)) newErrors.email = "Invalid email address";
+
+    const phonePattern = /^[0-9]{10}$/;
+    if (!contactNumber) newErrors.contactNumber = "Phone number is required";
+    else if (!phonePattern.test(contactNumber)) newErrors.contactNumber = "Invalid phone number";
+
+    if (!region) newErrors.region = "Region is required";
+    if (!userType) newErrors.userType = "User type is required";
+
+    if (!password) newErrors.password = "Password is required";
+    if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required";
+    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!validateFields()) {
-      return;
-    }
-    if (emailError || phoneError) {
-      alert("Please fix the errors before submitting");
-      return;
-    }
+    if (!validateFields()) return;
+
+    const { firstName, lastName, email, password, contactNumber, region, userType } = formData;
+    const body = {
+      full_name: `${firstName} ${lastName}`,
+      email,
+      password,
+      contact_number: contactNumber,
+      region,
+      user_type: userType,
+    };
 
     try {
-      const full_name = `${firstName} ${lastName}`; 
-      let body = { full_name, email, password, contact_number, region, user_type };
-      console.log(body)
-      
       const response = await fetch("http://localhost:2426/hospitaladmin", {
-
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        setServerError(`Server error: ${response.status} - ${errorText}`);
+        return;
+      }
+
       const data = await response.json();
+      console.log("Server response:", data);
+
       if (data.jwtToken) {
-        window.location = "/signupotpverification";
-      } else {
-        alert("User Created");
+        navigate("/signupotpverification");
       }
     } catch (err) {
-      console.log(err.message);
+      console.error("Error during submission:", err);
+      setServerError("An unexpected error occurred. Please try again later.");
     }
   };
 
   return (
-    <div className="flex min-h-screen w-screen w-full items-center justify-center text-gray-600 bg-gray-50">
-      <div className="relative">
-        <div className="relative flex flex-col sm:w-full md:w-[30rem] lg:w-[30rem] xl:w-[30rem] 2xl:w-[30rem] rounded-lg border-gray-400 bg-white shadow-lg px-4">
-          <div className="flex-auto p-6">
-            <h4 className="mb-2 font-medium text-gray-700 xl:text-xl">Welcome!</h4>
-            <p className="mb-6 text-gray-500">Please sign-in to access your account</p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-6 bg-white rounded shadow-md">
+        <h4 className="mb-4 text-xl font-medium text-gray-700">Register</h4>
+        {serverError && <p className="mb-4 text-red-500">{serverError}</p>}
+        <form onSubmit={onSubmit}>
+          {["firstName", "lastName"].map((field) => (
+            <div key={field} className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                {field === "firstName" ? "First Name" : "Last Name"}
+              </label>
+              <input
+                type="text"
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                className="block w-full px-3 py-2 border rounded"
+              />
+              {errors[field] && <p className="text-red-500 text-sm">{errors[field]}</p>}
+            </div>
+          ))}
 
-            <form className="mb-4" onSubmit={onSubmit}>
-              <div className="mb-4 flex flex-wrap space-x-4">
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">First Name</label>
-                  <input
-                    type="text"
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    placeholder="Enter your first name"
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                  />
-                  {fieldErrors.firstName && <p className="text-red-500 text-sm">{fieldErrors.firstName}</p>}
-                </div>
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Last Name</label>
-                  <input
-                    type="text"
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    placeholder="Enter your last name"
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
-                  {fieldErrors.lastName && <p className="text-red-500 text-sm">{fieldErrors.lastName}</p>}
-                </div>
-              </div>
-
-              <div className="mb-4 flex flex-wrap space-x-4">
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    placeholder="Enter your email"
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={handleEmailBlur}
-                    required
-                  />
-                  {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-                </div>
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Phone Number</label>
-                  <input
-                    type="text"
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    placeholder="Enter your phone number"
-                    onChange={(e) => setContact(e.target.value)}
-                    onBlur={handlePhoneBlur}
-                    required
-                  />
-                  {phoneError && <p className="text-red-500 text-sm">{phoneError}</p>}
-                </div>
-              </div>
-
-              <div className="mb-4 flex flex-wrap space-x-4">
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Region</label>
-                  <select
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    onChange={(e) => setRegion(e.target.value)}
-                    required
-                  >
-                    <option value="">Select a region</option>
-                    <option value="north">North</option>
-                    <option value="south">South</option>
-                    <option value="east">East</option>
-                    <option value="west">West</option>
-                  </select>
-                  {fieldErrors.region && <p className="text-red-500 text-sm">{fieldErrors.region}</p>}
-                </div>
-
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">User Type</label>
-                  <select
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    onChange={(e) => setRole(e.target.value)}
-                    required
-                  >
-                    <option value="">Select a user type</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                  </select>
-                  {fieldErrors.user_type && <p className="text-red-500 text-sm">{fieldErrors.user_type}</p>}
-                </div>
-              </div>
-
-              <div className="mb-4 flex flex-wrap space-x-4">
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Password</label>
-                  <div className="relative">
-                    <input
-                      type={passwordVisible ? "text" : "password"}
-                      className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                      placeholder="Enter your password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                  {fieldErrors.password && <p className="text-red-500 text-sm">{fieldErrors.password}</p>}
-                </div>
-                <div className="flex-1">
-                  <label className="mb-2 inline-block text-xs font-medium uppercase text-gray-700">Confirm Password</label>
-                  <input
-                    type="password"
-                    className="block w-full rounded-md border border-gray-400 py-2 px-3 text-sm"
-                    placeholder="Confirm your password"
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                  {fieldErrors.confirmPassword && <p className="text-red-500 text-sm">{fieldErrors.confirmPassword}</p>}
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                className="mt-4 w-full rounded-md bg-blue-500 py-2 text-white font-medium hover:bg-blue-600"
-              >
-                Sign Up
-              </button>
-            </form>
-            <p className="mb-4 text-center">
-              Already have an account? <a href="/login" className="text-indigo-500">Login</a>
-            </p>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="block w-full px-3 py-2 border rounded"
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
-        </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <input
+              type="text"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              className="block w-full px-3 py-2 border rounded"
+            />
+            {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber}</p>}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Region</label>
+            <select
+              name="region"
+              value={formData.region}
+              onChange={handleChange}
+              className="block w-full px-3 py-2 border rounded"
+            >
+              <option value="">Select a region</option>
+              <option value="north">North</option>
+              <option value="south">South</option>
+              <option value="east">East</option>
+              <option value="west">West</option>
+            </select>
+            {errors.region && <p className="text-red-500 text-sm">{errors.region}</p>}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">User Type</label>
+            <select
+              name="userType"
+              value={formData.userType}
+              onChange={handleChange}
+              className="block w-full px-3 py-2 border rounded"
+            >
+              <option value="">Select a user type</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+            {errors.userType && <p className="text-red-500 text-sm">{errors.userType}</p>}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <input
+                type={passwordVisible ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="block w-full px-3 py-2 border rounded"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2"
+              >
+                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="block w-full px-3 py-2 border rounded"
+            />
+            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+          </div>
+
+          <button type="submit" className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+            Sign Up
+          </button>
+        </form>
+        <p className="mt-4 text-center">
+          Already have an account? <a href="/login" className="text-indigo-500">Login</a>
+        </p>
       </div>
     </div>
   );
