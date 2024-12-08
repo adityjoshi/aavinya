@@ -23,7 +23,11 @@ export const user_type={
     LOGIN_PAGE : '/login',
     DASHBOARD_PAGE : '/',
     LoginOTPVerification_Page :'/verifyotp',
-    SignupOTPVerification_Page :'/signupotpverification'
+    SignupOTPVerification_Page :'/signupotpverification',
+    REGISTER_DOC : '/RegisterDoctor',
+    REGISTER_HOSPITAL : '/RegisterHospital',
+    REGISTER_STAFF : '/RegisterStaff',
+    ADD_BED : '/AddBed'
 }
 
 //export const apiLink = "http://localhost:3000"
