@@ -85,10 +85,7 @@ function Register() {
 
       const data = await response.json();
       console.log("Server response:", data);
-
-      if (data.jwtToken) {
-        navigate("/signupotpverification");
-      }
+      navigate('/login');
     } catch (err) {
       console.error("Error during submission:", err);
       setServerError("An unexpected error occurred. Please try again later.");

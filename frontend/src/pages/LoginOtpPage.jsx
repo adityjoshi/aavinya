@@ -84,19 +84,20 @@ function VerifyOtpPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwtToken}`,
+          "Authorization": jwtToken,
           "Region": region,
         },
         body: JSON.stringify(body),
       });
   
-      if (response.ok) {
+      if (response.status === 200 || response.status === 204) {
         navigate("/");
       } else {
         const data = await response.json();
         console.error("Server Response:", data);
         alert(data.error || "Invalid OTP. Please try again.");
       }
+      // console.log(response);
     } catch (err) {
       console.error("Error during OTP verification:", err);
       alert("An error occurred while verifying OTP. Please try again.");
