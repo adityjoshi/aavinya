@@ -20,7 +20,7 @@ function AdminLoginPage() {
         body: JSON.stringify(body),
       });
       const data = await response.json();
-
+      // console.log(data);
       if (data.message === "success") {
         localStorage.setItem("jwtToken", data.token);
         localStorage.setItem("region", data.region);
