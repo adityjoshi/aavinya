@@ -84,25 +84,12 @@ function VerifyOtpPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-<<<<<<< HEAD
-          "Authorization": `${jwtToken}`,
-=======
-<<<<<<< HEAD
           "Authorization": jwtToken,
-=======
-          "Authorization": `Bearer ${jwtToken}`,
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
->>>>>>> dab1e446d940326a173f144c35d82688bf2b2a0f
           "Region": region,
         },
         body: JSON.stringify(body),
       });
-  
-<<<<<<< HEAD
       if (response.status === 200 || response.status === 204) {
-=======
-      if (response.ok) {
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
         navigate("/");
       } else {
         const data = await response.json();
@@ -161,5 +148,6 @@ function VerifyOtpPage() {
     </div>
   );
 }
+
 
 export default VerifyOtpPage;

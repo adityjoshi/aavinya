@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
-<<<<<<< HEAD
 import { FaUserMd, FaUserAlt, FaUserNurse, FaBed, FaPills, FaBars, FaCalendarAlt } from "react-icons/fa";
-=======
-import { FaUserMd, FaHospital, FaBed, FaUserNurse } from "react-icons/fa";
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
 import { useNavigate } from "react-router-dom";
 import { GetAuthHeader } from "../utils/Headers";
 
 function Dashboard() {
   const [userType, setUserType] = useState(null);
-<<<<<<< HEAD
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-=======
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,7 +30,6 @@ function Dashboard() {
     fetchUserType();
   }, []);
 
-<<<<<<< HEAD
   // Apply global styles
   useEffect(() => {
     const globalStyles = {
@@ -64,7 +56,7 @@ function Dashboard() {
         }}
       >
         <div style={sidebarHeaderContainer}>
-          <h2 style={isSidebarOpen ? sidebarHeader : sidebarHeaderCollapsed}>Admin Dashboard</h2>
+          <h6 style={isSidebarOpen ? sidebarHeader : sidebarHeaderCollapsed}>Admin Dashboard</h6>
           <FaBars style={toggleIcon} onClick={toggleSidebar} />
         </div>
         <nav style={sidebarNav}>
@@ -135,34 +127,6 @@ function Dashboard() {
             <FaUserNurse size={48} style={iconStyle} />
             <span style={cardTextStyle}>Register Staff</span>
           </div>
-=======
-  return (
-    <div style={dashboardContainer}>
-      <h1 style={headerStyle}>Dashboard</h1>
-      <div style={gridContainer}>
-        {/* Register Doctor Button */}
-        <div style={cardStyle} onClick={() => navigate("/RegisterDoctor")}>
-          <FaUserMd size={36} style={iconStyle} />
-          <span style={cardTextStyle}>Register Doctor</span>
-        </div>
-
-        {/* Register Hospital Button */}
-        <div style={cardStyle} onClick={() => navigate("/RegisterHospital")}>
-          <FaHospital size={36} style={iconStyle} />
-          <span style={cardTextStyle}>Register Hospital</span>
-        </div>
-
-        {/* Add Beds Button */}
-        <div style={cardStyle} onClick={() => navigate("/AddBed")}>
-          <FaBed size={36} style={iconStyle} />
-          <span style={cardTextStyle}>Add Beds</span>
-        </div>
-
-        {/* Register Staff Button */}
-        <div style={cardStyle} onClick={() => navigate("/RegisterStaff")}>
-          <FaUserNurse size={36} style={iconStyle} />
-          <span style={cardTextStyle}>Register Staff</span>
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
         </div>
       </div>
     </div>
@@ -171,21 +135,12 @@ function Dashboard() {
 
 // Styles
 const dashboardContainer = {
-<<<<<<< HEAD
   display: "flex",
   fontFamily: "Arial, sans-serif",
-=======
-  padding: "40px 20px",
-  fontFamily: "Arial, sans-serif",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
   backgroundColor: "#f8f9fa",
   minHeight: "100vh",
 };
 
-<<<<<<< HEAD
 const sidebarContainer = {
   backgroundColor: "#343a40",
   color: "#fff",
@@ -248,12 +203,6 @@ const navIcon = {
 const mainContent = {
   flex: 1,
   padding: "20px",
-=======
-const headerStyle = {
-  fontSize: "32px",
-  marginBottom: "30px",
-  color: "#333",
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
 };
 
 const gridContainer = {
@@ -261,12 +210,8 @@ const gridContainer = {
   gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: "20px",
   width: "100%",
-<<<<<<< HEAD
   maxWidth: "1000px",
   marginTop: "20px",
-=======
-  maxWidth: "800px",
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
 };
 
 const cardStyle = {
@@ -276,7 +221,6 @@ const cardStyle = {
   justifyContent: "center",
   backgroundColor: "#007bff",
   color: "white",
-<<<<<<< HEAD
   borderRadius: "12px",
   padding: "30px",
   cursor: "pointer",
@@ -295,26 +239,6 @@ const iconStyle = {
 
 const cardTextStyle = {
   fontSize: "18px",
-=======
-  borderRadius: "8px",
-  padding: "20px",
-  cursor: "pointer",
-  transition: "transform 0.2s, box-shadow 0.2s",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-};
-
-cardStyle[":hover"] = {
-  transform: "scale(1.05)",
-  boxShadow: "0 6px 10px rgba(0, 0, 0, 0.15)",
-};
-
-const iconStyle = {
-  marginBottom: "10px",
-};
-
-const cardTextStyle = {
-  fontSize: "16px",
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
   fontWeight: "bold",
   textAlign: "center",
 };
