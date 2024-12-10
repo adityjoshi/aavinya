@@ -40,7 +40,32 @@ const router = createBrowserRouter([
 	{
 		path: RoutesPathName.DASHBOARD_PAGE,
 		element: (
-			<PrivateRoute />
+			// <Dashboard />
+			<PrivateRoute/>
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_DOC,
+		element: (
+			<RegisterDoctor />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_HOSPITAL,
+		element: (
+			<RegisterHospital />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_STAFF,
+		element: (
+			<RegisterStaff />
+		),
+	},
+	{
+		path: RoutesPathName.ADD_BED,
+		element: (
+			<AddBeds />
 		),
 	},
 	{

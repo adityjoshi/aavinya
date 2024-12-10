@@ -10,7 +10,7 @@ import { useAuth } from './AuthProvider';
 const PrivateRoute = () => {
   const { authToken, headers } = useAuth();
 
-  console.log(authToken, headers);
+  // console.log(authToken);
 
   return authToken ? (
     <>

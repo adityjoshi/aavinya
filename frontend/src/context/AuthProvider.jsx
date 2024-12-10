@@ -4,7 +4,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(localStorage.getItem("jwtToken"));
-
+  // console.log("authToken ", authToken)
   const login = (token) => {
     setAuthToken(token);
     localStorage.setItem("jwtToken", token);
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("jwtToken");
   };
 
-  const headers = { "content-Type": "application/json" , "Authorization" : authToken }
+  const headers = { "Content-Type": "application/json" , "Authorization" : authToken }
 
   return (
     <AuthContext.Provider value={{ authToken, login, logout, headers }}>
