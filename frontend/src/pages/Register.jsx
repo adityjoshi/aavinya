@@ -81,18 +81,7 @@ function Register() {
         const errorText = await response.text();
         setServerError(`Server error: ${response.status} - ${errorText}`);
         return;
-<<<<<<< HEAD
-=======
       }
-
-      const data = await response.json();
-      console.log("Server response:", data);
-
-      if (data.jwtToken) {
-        navigate("/signupotpverification");
->>>>>>> 25cd69d23be54a52b9b55a29bc41206ec64a8765
-      }
-
       const data = await response.json();
       console.log("Server response:", data);
       navigate('/login');
