@@ -67,6 +67,30 @@ const router = createBrowserRouter([
 		element: (
 			<AddBeds />
 		),
+	},
+	{
+		path: RoutesPathName.REGISTER_DOC,
+		element: (
+			<RegisterDoctor />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_HOSPITAL,
+		element: (
+			<RegisterHospital />
+		),
+	},
+	{
+		path: RoutesPathName.REGISTER_STAFF,
+		element: (
+			<RegisterStaff />
+		),
+	},
+	{
+		path: RoutesPathName.ADD_BED,
+		element: (
+			<AddBeds />
+		),
 	}
      ]);
 
