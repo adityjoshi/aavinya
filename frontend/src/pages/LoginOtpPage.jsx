@@ -84,7 +84,7 @@ function VerifyOtpPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwtToken}`,
+          "Authorization": `${jwtToken}`,
           "Region": region,
         },
         body: JSON.stringify(body),
