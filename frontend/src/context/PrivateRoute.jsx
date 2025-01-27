@@ -1,28 +1,23 @@
-import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
-import Dashboard from '../pages/Dashboard';
-import RegisterDoctor from '../pages/RegisterDoctor';
-import RegisterHospital from '../pages/RegisterHospital';
-import RegisterStaff from '../pages/RegisterStaff';
-import AddBeds from '../pages/AddBeds';
-import { useAuth } from './AuthProvider';
+import { Navigate } from 'react-router-dom'; // For programmatically navigating users
+import { useAuth } from './AuthProvider'; // Custom hook to check authentication status
+import { RoutesPathName } from '../constants'; // Centralized route path constants
 
-const PrivateRoute = () => {
-  const { authToken, headers } = useAuth();
+/**
+ * PrivateRoute: A wrapper component to restrict access based on authentication.
+ * - If the user is authenticated, it renders the child components.
+ * - If not authenticated, it redirects the user to the login page.
+ *
+ * @param {ReactNode} children - The child components to render if authenticated.
+ * @returns {ReactNode | JSX.Element} - The children if authenticated or a redirect to the login page.
+ */
+export default function PrivateRoute({ children }) {
+  const { isAuthenticated } = useAuth(); // Get the authentication status from AuthProvider
 
-  // console.log(authToken);
-
-  return authToken ? (
-    <>
-    <Dashboard/>
-    <RegisterDoctor/>
-    <RegisterHospital/>
-    <RegisterStaff/>
-    <AddBeds/>
-    </>
-  ) : (
-    <Navigate to="/login" /> 
-  );
-};
-
-export default PrivateRoute;
+  // If the user is not authenticated, redirect to the login page
+  if (!isAuthenticated) {
+    return <Navigate to={RoutesPathName.LOGIN_PAGE} replace />;
+  }
+ 
+  // If authenticated, render the child components
+  return children;
+}
