@@ -24,6 +24,7 @@ function AdminLoginPage() {
       if (data.message === "success") {
         localStorage.setItem("jwtToken", data.token);
         localStorage.setItem("region", data.region);
+        login(data.token, { name: data.name, email: data.email });
         navigate("/verifyotp");
       } else {
         alert("Invalid credentials. Please check your email and password.");
