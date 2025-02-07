@@ -8,7 +8,7 @@ import (
 )
 
 func StartConsumer(region string) {
-	kafkaBroker := "localhost:9092"
+	kafkaBroker := "kafka-broker:9092"
 	var topic = []string{
 		"hospital_admin",
 		"hospital_registration",

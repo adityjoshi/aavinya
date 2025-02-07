@@ -17,7 +17,7 @@ var (
 func InitDatabase() {
 	var err error
 	// Main DB connection (hosp)
-	dsn := "host=localhost user=postgres password=aditya dbname=hosp port=5432"
+	dsn := "host=host.docker.internal user=postgres password=aditya dbname=hosp port=5432"
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -26,7 +26,7 @@ func InitDatabase() {
 	}
 
 	// North DB connection (northdb)
-	Northdsn := "host=localhost user=postgres password=aditya dbname=northdb port=5432"
+	Northdsn := "host=host.docker.internal user=postgres password=aditya dbname=northdb port=5432"
 	NorthDB, err = gorm.Open(postgres.Open(Northdsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect North database")
@@ -35,7 +35,7 @@ func InitDatabase() {
 	}
 
 	// South DB connection (southdb)
-	Southdsn := "host=localhost user=postgres password=aditya dbname=southdb port=5432"
+	Southdsn := "host=host.docker.internal user=postgres password=aditya dbname=southdb port=5432"
 	SouthDB, err = gorm.Open(postgres.Open(Southdsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect South database")

@@ -33,8 +33,9 @@ func main() {
 	defer database.CloseDatabase()
 	database.InitializeRedisClient()
 
-	northBrokers := []string{"localhost:9092"}
-	southBrokers := []string{"localhost:9092"}
+	northBrokers := []string{"kafka-broker:9092"}
+	southBrokers := []string{"kafka-broker:9092"}
+
 	var err error
 	km, err = kafkamanager.NewKafkaManager(northBrokers, southBrokers)
 	if err != nil {
@@ -64,7 +65,7 @@ func main() {
 
 	// Start server
 	server := &http.Server{
-		Addr:    ":2426",
+		Addr:    ":8080",
 		Handler: router,
 	}
 	log.Println("Server is running at :2426...")

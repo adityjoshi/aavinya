@@ -57,10 +57,11 @@ func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 		adminRoutes.POST("/updateBeds", middleware.OtpAuthRequireed, controllers.UpdateTotalBeds)
 		//adminRoutes.GET("/getBeds", middleware.OtpAuthRequireed, controllers.GetTotalBeds)
 	}
+	incomingRoutes.POST("/stafflogin", controllers.StaffLogin)
+
 	receptionistRoute := incomingRoutes.Group("/reception")
 	receptionistRoute.Use(middleware.AuthRequired("Staff", "Reception"))
 	{
-		incomingRoutes.POST("/stafflogin", controllers.StaffLogin)
 		receptionistRoute.POST("/staffotp", controllers.VerifyStaffOTP)
 		receptionistRoute.POST("/patientReg", func(c *gin.Context) {
 			c.Set("km", km)
