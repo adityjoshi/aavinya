@@ -15,7 +15,7 @@ services:
       - postgres_north
       - postgres_south
     ports:
-      - "8080:8080"
+      - "2426:2426"
     environment:
       REDIS_URL: redis:6379
       KAFKA_BROKER: kafka-broker:9092

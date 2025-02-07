@@ -65,7 +65,7 @@ func main() {
 
 	// Start server
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":2426",
 		Handler: router,
 	}
 	log.Println("Server is running at :2426...")
