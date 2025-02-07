@@ -1,6 +1,3 @@
-import LoginOTPVerification from "./pages/LoginOtpPage"
-import SignupOTPVerification from "./pages/SignupOtpPage"
-
 export const Roles = {
     WARDEN : 'warden',
     STUDENT : 'student',
@@ -27,7 +24,7 @@ export const user_type={
     REGISTER_DOC : '/RegisterDoctor',
     REGISTER_HOSPITAL : '/RegisterHospital',
     REGISTER_STAFF : '/RegisterStaff',
-    ADD_BED : '/AddBed'
+    ADD_BED : '/AddBed',
 }
 
 //export const apiLink = "http://localhost:3000"
