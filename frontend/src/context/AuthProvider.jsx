@@ -4,26 +4,45 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(localStorage.getItem("jwtToken"));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [region, setRegion] = useState(localStorage.getItem("region"));
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const login = (token, userDetails) => {
+  // Add role to the login function
+  const login = (token, userDetails, region) => {
+    const role = localStorage.getItem("role"); // Get role from localStorage
     setAuthToken(token);
-    setUser(userDetails);
+    setUser({ ...userDetails, role }); // Include role in user details
+    setRegion(region);
     localStorage.setItem("jwtToken", token);
-    localStorage.setItem("user", JSON.stringify(userDetails));
+    localStorage.setItem("region", region);
+    localStorage.setItem("user", JSON.stringify({ ...userDetails, role }));
   };
 
   const logout = () => {
     setAuthToken(null);
     setUser(null);
+    setRegion(null);
     localStorage.removeItem("jwtToken");
+    localStorage.removeItem("region");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
   };
 
   const headers = { "Content-Type": "application/json", Authorization: authToken };
 
   return (
-    <AuthContext.Provider value={{ authToken, user, login, logout, headers }}>
+    <AuthContext.Provider value={{ 
+      authToken, 
+      user, 
+      region, 
+      login, 
+      logout, 
+      headers, 
+      isAuthenticated: !!authToken 
+    }}>
       {children}
     </AuthContext.Provider>
   );

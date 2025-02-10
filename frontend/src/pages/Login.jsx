@@ -1,162 +1,145 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function AdminLoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [region, setRegion] = useState("north");
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+const roleEndpoints = {
+  Admin: "http://localhost:2426/hospitalAdmin/adminLogin",
+  Compounder: "http://localhost:2426/compounder/staffLogin",
+  Doctor: "http://localhost:2426/doctor/doctorLogin",
+  Reception: "http://localhost:2426/receptionist/stafflogin",
+};
 
-  const onSubmit = async (e) => {
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "Admin",
+    region: "north",
+  });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const endpoint = roleEndpoints[formData.role];
 
     try {
-      const body = { email, password, region };
-
-      const response = await fetch("http://localhost:2426/adminLogin", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(formData),
       });
       const data = await response.json();
-      // console.log(data);
-      if (data.message === "success") {
-        localStorage.setItem("jwtToken", data.token);
-        localStorage.setItem("region", data.region);
-        login(data.token, { name: data.name, email: data.email });
-        navigate("/verifyotp");
+
+      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      localStorage.setItem("jwtToken", data.token);
+      localStorage.setItem("region", formData.region);
+      localStorage.setItem("role", formData.role);
+
+      if (formData.role === "Doctor") {
+        navigate("/");
       } else {
-        alert("Invalid credentials. Please check your email and password.");
+        navigate("/verifyotp");
       }
-    } catch (err) {
-      console.error("Error during login:", err);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "50px auto",
-        padding: "20px",
-        borderRadius: "8px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        backgroundColor: "#f9f9f9",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <h2 style={{ textAlign: "center", color: "#333", marginBottom: "20px" }}>
-        Admin Login
-      </h2>
-      <form onSubmit={onSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-            style={{
-              width: "100%",
-              padding: "10px",
-              fontSize: "16px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Password
-          </label>
-          <div style={{ position: "relative" }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                fontSize: "16px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              style={{
-                position: "absolute",
-                right: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#007bff",
-              }}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div>
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Region
-          </label>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              fontSize: "16px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          >
-            <option value="north">North</option>
-            <option value="south">South</option>
-            <option value="east">East</option>
-            <option value="west">West</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            fontSize: "16px",
-            color: "#fff",
-            backgroundColor: "#007bff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-6 shadow-lg rounded-lg max-w-sm w-full">
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
           Login
-        </button>
-      </form>
-      <p className="mt-4 text-center">
-        Don't have an account? <a href="/SignUp" className="text-indigo-500">Sign Up</a>
-      </p>
+        </h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Role
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {Object.keys(roleEndpoints).map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Region
+            </label>
+            <select
+              name="region"
+              value={formData.region}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {["north", "south", "east", "west"].map((region) => (
+                <option key={region} value={region}>
+                  {region.charAt(0).toUpperCase() + region.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition duration-300 disabled:opacity-50"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <a href="/SignUp" className="text-blue-500 font-medium hover:underline">
+            Sign Up
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
-
-export default AdminLoginPage;
