@@ -1,31 +1,30 @@
 import React, { useState } from 'react';
 
-const RegisterStaff = () => {
+const UpdateBeds = () => {
     const [formData, setFormData] = useState({
-        full_name: '',
-        email: '',
-        contact_number: '',
-        position: '',
-        // hospital_id: '',
-        // hospital_name: '',
-        // username: '',
-        // password: ''
+        type_name: '',
+        total_beds: '',
+        hospital_id: '',
+        action: ''
     });
 
     const [responseMessage, setResponseMessage] = useState('');
-
     const jwtToken = localStorage.getItem("jwtToken");
     const region = localStorage.getItem("region");
+    // const role = localStorage.getItem("role");
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === "checkbox" ? checked : value
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:2426/admin/registerStaff', {
+            const response = await fetch('http://localhost:2426/hospitalAdmin/updateBeds', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,59 +39,63 @@ const RegisterStaff = () => {
             }
 
             const data = await response.json();
-            setResponseMessage(data.message || 'Staff registered successfully!');
+            setResponseMessage(data.message || 'Bed record added successfully!');
         } catch (error) {
-            setResponseMessage(error.message || 'Error registering staff.');
+            setResponseMessage(error.message || 'Error adding bed record.');
         }
     };
 
     return (
-        <div className="register-staff" style={{ width: '100%', maxWidth: '500px', margin: '0 auto', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '24px', color: '#333' }}>Register Staff</h2>
+        <div className="add-beds" style={{ width: '100%', maxWidth: '500px', margin: '0 auto', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+            <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '24px', color: '#333' }}>Update Beds</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '15px' }}>
-                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Full Name:</label>
+                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Bed Type Name:</label>
                     <input
                         type="text"
-                        name="full_name"
-                        value={formData.full_name}
+                        name="type_name"
+                        value={formData.type_name}
                         onChange={handleChange}
                         required
                         style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
                     />
                 </div>
                 <div style={{ marginBottom: '15px' }}>
-                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Email:</label>
+                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Total Beds:</label>
                     <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
+                        type="number"
+                        name="total_beds"
+                        value={formData.total_beds}
                         onChange={handleChange}
                         required
                         style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
                     />
                 </div>
                 <div style={{ marginBottom: '15px' }}>
-                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Contact Number:</label>
-                    <input
-                        type="text"
-                        name="contact_number"
-                        value={formData.contact_number}
+                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px', display: 'block' }}>
+                        Action:
+                    </label>
+                    <select
+                        name="action"
+                        value={formData.action}
                         onChange={handleChange}
                         required
-                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
-                    />
-                </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Position:</label>
-                    <input
-                        type="text"
-                        name="position"
-                        value={formData.position}
-                        onChange={handleChange}
-                        required
-                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
-                    />
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '16px',
+                            backgroundColor: '#fff',
+                            color: '#333',
+                            cursor: 'pointer',
+                            appearance: 'none', // Removes default browser styling
+                        }}
+                    >
+                        <option value="" disabled>Select an action</option>
+                        <option value="add">Add</option>
+                        <option value="remove">Remove</option>
+                    </select>
                 </div>
                 <button
                     type="submit"
@@ -107,7 +110,7 @@ const RegisterStaff = () => {
                         transition: 'background-color 0.3s ease',
                     }}
                 >
-                    Register
+                    Update Bed
                 </button>
             </form>
             {responseMessage && <p style={{ textAlign: 'center', color: 'green', marginTop: '20px', fontSize: '16px' }}>{responseMessage}</p>}
@@ -116,4 +119,4 @@ const RegisterStaff = () => {
     );
 };
 
-export default RegisterStaff;
+export default UpdateBeds;
