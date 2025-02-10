@@ -56,6 +56,7 @@ func main() {
 	go controllers.SubscribeToAppointmentUpdates()
 	go controllers.CheckAppointmentsQueue()
 	go controllers.SubscribeToAppointmentUpdates()
+	go controllers.StartPatientCountSubscriber()
 
 	// Setup the HTTP server with Gin
 	router := gin.Default()
@@ -94,11 +95,10 @@ func setupSessions(router *gin.Engine) {
 	router.Use(sessions.Sessions("session", store))
 }
 
-// Add a route for handling OPTIONS requests globall
-
-// setupRoutes defines all application routes
 func setupRoutes(router *gin.Engine) {
 	routes.UserRoutes(router)
 	routes.UserInfoRoutes(router)
 	routes.HospitalAdmin(router, km)
+	routes.StaffRoutes(router, km)
+	routes.DoctorRoutes(router)
 }

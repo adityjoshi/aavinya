@@ -29,6 +29,10 @@ func StaffLogin(c *gin.Context) {
 
 	var staff database.HospitalStaff
 	db, err := database.GetDBForRegion(loginRequest.Region)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("email = ?", loginRequest.Email).First(&staff).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -91,6 +95,10 @@ func VerifyStaffOTP(c *gin.Context) {
 		return
 	}
 	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("email = ?", otpRequest.Email).First(&staff).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Staff not found"})
 		return
@@ -165,6 +173,10 @@ func RegisterPatient(c *gin.Context) {
 	}
 	var staff database.HospitalStaff
 	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("staff_id = ?", staffIDUint).First(&staff).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve staff details"})
 		return
@@ -248,6 +260,10 @@ func AdmitPatientForHospitalization(c *gin.Context) {
 	// Check if the patient exists in the system
 	var patient database.Patients
 	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("full_name = ? AND contact_number = ?", patient_beds.FullName, patient_beds.ContactNumber).First(&patient).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
 		return
@@ -362,7 +378,7 @@ func CompounderLogin(c *gin.Context) {
 	var reqData struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		Region   string `json:"region`
+		Region   string `json:"region"`
 	}
 
 	// Parse login credentials
@@ -374,6 +390,10 @@ func CompounderLogin(c *gin.Context) {
 	// Find the compounder by email
 	var compounder database.HospitalStaff
 	db, err := database.GetDBForRegion(reqData.Region)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("email = ?", reqData.Email).First(&compounder).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
@@ -450,7 +470,6 @@ func GetRoomAssignments(c *gin.Context) {
 		return
 	}
 
-	// Prepare the response data
 	var response []gin.H
 	for _, assignment := range roomAssignments {
 		response = append(response, gin.H{
@@ -479,204 +498,15 @@ func GetRoomAssignments(c *gin.Context) {
 	})
 }
 
-// Admit patient and update bed status
-// func AdmitPatient(c *gin.Context) {
-// 	km, exists := c.Get("km")
-// 	if !exists {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "KafkaManager not found"})
-// 		return
-// 	}
+/*
 
-// 	kafkaManager, ok := km.(*kafkamanager.KafkaManager)
-// 	if !ok {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid KafkaManager"})
-// 		return
-// 	}
+AdmitPatient:
+Accepts a much simpler payload containing just BedID, BedType, and IsAdmitted.
+Checks if the requested bed is available.
+Only updates the bed’s occupied status without involving patient details.
 
-// 	var reqData struct {
-// 		BedID      uint   `json:"bed_id"`
-// 		BedType    string `json:"bed_type"`    // Renamed to match the request format
-// 		IsAdmitted bool   `json:"is_admitted"` // Changed field name to match proper boolean format
-// 	}
 
-// 	// Parse the incoming JSON data
-// 	if err := c.BindJSON(&reqData); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-// 		return
-// 	}
-
-// 	// Check for the region from the context
-// 	region, exists := c.Get("region")
-// 	if !exists {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized region"})
-// 		return
-// 	}
-// 	regionStr, ok := region.(string)
-// 	if !ok {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
-// 		return
-// 	}
-
-// 	// Retrieve the correct database connection for the region
-// 	db, err := database.GetDBForRegion(regionStr)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
-// 		return
-// 	}
-
-// 	// Find the bed based on both BedID and BedType
-// 	var bed database.PatientBeds
-// 	if err := db.Where("id = ? AND bed_type = ?", reqData.BedID, reqData.BedType).First(&bed).Error; err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "Bed not found"})
-// 		return
-// 	}
-
-// 	// Check the isAdmitted flag and update the bed status accordingly
-// 	if reqData.IsAdmitted {
-// 		bed.Hospitalized = true
-// 	} else {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid admission status"})
-// 		return
-// 	}
-
-// 	// Save the updated bed status
-// 	if err := db.Save(&bed).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update bed status"})
-// 		return
-// 	}
-
-// 	// // Optionally, publish to Redis or other services to notify the system of the update
-// 	// message := fmt.Sprintf("Bed %d of type %s has been assigned to a patient and admitted.", bed., bed.BedType)
-// 	// if err := database.RedisClient.Publish(database.Ctx, "bed_updates", message).Err(); err != nil {
-// 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to notify other services"})
-// 	// 	return
-// 	// }
-
-// 	patientRegistrationMessage, err := json.Marshal(patient)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal hospital admin data to JSON"})
-// 		return
-// 	}
-// 	// Send the registration message to Kafka based on the region
-// 	var errKafka error
-// 	switch region {
-// 	case "north":
-// 		// Send to North region's Kafka topic (you provide the topic name)
-// 		errKafka = kafkaManager.SendUserRegistrationMessage(regionStr, "patient_registration", string(patientRegistrationMessage))
-// 	case "south":
-// 		// Send to South region's Kafka topic (you provide the topic name)
-// 		errKafka = kafkaManager.SendUserRegistrationMessage(regionStr, "patient_registration", string(patientRegistrationMessage))
-// 	default:
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid region: %s", region)})
-// 		return
-// 	}
-
-// 	// Check if there was an error sending the message to Kafka
-// 	if errKafka != nil {
-// 		log.Printf("Failed to send registration data to Kafka: %v", errKafka)
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send data to Kafka"})
-// 		return
-// 	}
-
-// 	// Return success response
-// 	c.JSON(http.StatusOK, gin.H{"message": "Patient admitted successfully"})
-// }
-
-// func AdmitPatient(c *gin.Context) {
-// 	km, exists := c.Get("km")
-// 	if !exists {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "KafkaManager not found"})
-// 		return
-// 	}
-
-// 	kafkaManager, ok := km.(*kafkamanager.KafkaManager)
-// 	if !ok {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid KafkaManager"})
-// 		return
-// 	}
-
-// 	var reqData struct {
-// 		BedID      uint   `json:"patient_room_no"`
-// 		BedType    string `json:"bed_type"`
-// 		IsAdmitted bool   `json:"is_admitted"`
-// 	}
-
-// 	// Parse the incoming JSON data
-// 	if err := c.BindJSON(&reqData); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-// 		return
-// 	}
-
-// 	// Check for the region from the context
-// 	region, exists := c.Get("region")
-// 	if !exists {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized region"})
-// 		return
-// 	}
-// 	regionStr, ok := region.(string)
-// 	if !ok {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
-// 		return
-// 	}
-
-// 	// Retrieve the correct database connection for the region
-// 	db, err := database.GetDBForRegion(regionStr)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
-// 		return
-// 	}
-
-// 	// Find the bed based on both BedID and BedType
-// 	var bed database.PatientBeds
-// 	if err := db.Where("patient_room_no = ? AND bed_type = ?", reqData.BedID, reqData.BedType).First(&bed).Error; err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "Bed not found"})
-// 		return
-// 	}
-
-// 	// Check the isAdmitted flag and update the bed status accordingly
-
-// 	// Prepare the patient admission message
-// 	admitMessage := struct {
-// 		BedID      uint   `json:"patient_room_no"`
-// 		BedType    string `json:"bed_type"`
-// 		IsAdmitted bool   `json:"is_admitted"`
-// 	}{
-// 		BedID:      reqData.BedID,
-// 		BedType:    reqData.BedType,
-// 		IsAdmitted: reqData.IsAdmitted,
-// 	}
-
-// 	// Marshal the admission data into JSON format
-// 	admitMessageJSON, err := json.Marshal(admitMessage)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal admission data to JSON"})
-// 		return
-// 	}
-
-// 	// Send the patient admission data to Kafka based on the region
-// 	var errKafka error
-// 	switch regionStr {
-// 	case "north":
-// 		errKafka = kafkaManager.SendUserRegistrationMessage(regionStr, "patient_admission", string(admitMessageJSON))
-// 	case "south":
-// 		errKafka = kafkaManager.SendUserRegistrationMessage(regionStr, "patient_admission", string(admitMessageJSON))
-// 	default:
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid region: %s", regionStr)})
-// 		return
-// 	}
-
-// 	// Check if there was an error sending the message to Kafka
-// 	if errKafka != nil {
-// 		log.Printf("Failed to send admission data to Kafka: %v", errKafka)
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send data to Kafka"})
-// 		return
-// 	}
-
-// 	// Save the updated bed status in the database
-
-// 	// Return success response
-// 	c.JSON(http.StatusOK, gin.H{"message": "Patient admitted successfully"})
-// }
+*/
 
 func AdmitPatient(c *gin.Context) {
 	// Get KafkaManager from context

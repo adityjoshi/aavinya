@@ -11,74 +11,39 @@ import (
 
 func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 
-	incomingRoutes.POST("/hospitaladmin", func(c *gin.Context) {
-		c.Set("km", km)                      // Set km into the context
-		controllers.RegisterHospitalAdmin(c) // Call the controller function
-	})
-	incomingRoutes.POST("/logindoc", controllers.DoctorLogin)
-	incomingRoutes.POST("/adminLogin", middleware.RateLimiterMiddleware(2, time.Minute), controllers.AdminLogin)
-	incomingRoutes.POST("/adminOtp", middleware.AuthRequired("Admin", ""), controllers.VerifyAdminOTP)
-	//incomingRoutes.POST("/stafflogin", controllers.StaffLogin)
-	incomingRoutes.POST("/staffotp", middleware.AuthRequired("Staff", "Compounder"), controllers.VerifyStaffOTP)
-
-	//incomingRoutes.POST("/admit", middleware.AuthRequired("Staff", "Compounder"), controllers.AdmitPatientForHospitalization)
-	incomingRoutes.POST("/compounder", controllers.CompounderLogin)
-	incomingRoutes.POST("/markCompounder", middleware.AuthRequired("Staff", "Compounder"), controllers.MarkPatientAsHospitalized)
-	incomingRoutes.GET("/get", middleware.AuthRequired("Staff", "Compounder"), controllers.GetRoomAssignments)
-	incomingRoutes.POST("/registerhospital", middleware.AuthRequired("Admin", ""), func(c *gin.Context) {
-		// Set km into the context (KafkaManager)
-		c.Set("km", km)
-
-		// Call the controller function
-		controllers.RegisterHospital(c)
-	})
-	// incomingRoutes.GET("/gethospital/:id", controllers.GetHospital)
-	incomingRoutes.POST("/doctor", middleware.AuthRequired("Admin", ""), controllers.RegisterDoctor)
-	// incomingRoutes.GET("/getdoctor/:id", controllers.GetDoctor)
-	// incomingRoutes.POST("/bookAppointment", controllers.CreateAppointment)
-	incomingRoutes.POST("/markAppointment/:appointment_id", controllers.RemoveAppointmentFromQueue)
-
-	adminRoutes := incomingRoutes.Group("/admin")
-	adminRoutes.Use(middleware.AuthRequired("Admin", ""))
+	adminRouting := incomingRoutes.Group("/hospitalAdmin")
+	adminRouting.Use(middleware.AuthRequired("Admin", ""))
 	{
-		//adminRoutes.POST("/registerhospital", middleware.OtpAuthRequireed, controllers.RegisterHospital)
-		//adminRoutes.GET("/gethospital/:id", middleware.OtpAuthRequireed, controllers.GetHospital)
-		adminRoutes.POST("/doctor", middleware.OtpAuthRequireed, controllers.RegisterDoctor)
-		adminRoutes.GET("/getdoctor/:id", middleware.OtpAuthRequireed, controllers.GetDoctor)
-		adminRoutes.POST("/createAppointment", middleware.OtpAuthRequireed, func(c *gin.Context) {
+		adminRouting.POST("/registerHospitalAdmin", func(c *gin.Context) {
 			c.Set("km", km)
-			controllers.CreateAppointment(c)
+			controllers.RegisterHospitalAdmin(c)
 		})
-		adminRoutes.POST("/registerStaff", middleware.OtpAuthRequireed, func(c *gin.Context) {
+		adminRouting.POST("/adminLogin", middleware.RateLimiterMiddleware(2, time.Minute), controllers.AdminLogin)
+		adminRouting.POST("/adminOtp", middleware.AuthRequired("Admin", ""), controllers.VerifyAdminOTP)
+		adminRouting.POST("/AdminRegisteringHospital", middleware.AuthRequired("Admin", ""), func(c *gin.Context) {
+			c.Set("km", km)
+			controllers.RegisterHospital(c)
+		})
+		adminRouting.POST("/Registerdoctor", middleware.AuthRequired("Admin", ""), controllers.RegisterDoctor)
+		/*
+		 to do: find the hopsital by admin id and region
+		*/
+		adminRouting.GET("/gethospital/:id", controllers.GetHospital)
+		adminRouting.POST("/registerStaff", middleware.OtpAuthRequireed, func(c *gin.Context) {
 			c.Set("km", km)
 			controllers.RegisterStaff(c)
 		})
-		adminRoutes.POST("/registerBeds", middleware.OtpAuthRequireed, controllers.AddBedType)
-		adminRoutes.POST("/updateBeds", middleware.OtpAuthRequireed, controllers.UpdateTotalBeds)
-		//adminRoutes.GET("/getBeds", middleware.OtpAuthRequireed, controllers.GetTotalBeds)
-	}
-	incomingRoutes.POST("/stafflogin", controllers.StaffLogin)
+		adminRouting.POST("/registerBeds", middleware.OtpAuthRequireed, controllers.AddBedType)
+		adminRouting.POST("/updateBeds", middleware.OtpAuthRequireed, controllers.UpdateTotalBeds)
+		adminRouting.GET("/getBeds", middleware.OtpAuthRequireed, controllers.GetTotalBeds)
+		adminRouting.GET("/getdoctor/:id", middleware.OtpAuthRequireed, controllers.GetDoctor)
+		adminRouting.POST("/createAppointment", middleware.OtpAuthRequireed, func(c *gin.Context) {
+			c.Set("km", km)
+			controllers.CreateAppointment(c)
+		})
+		incomingRoutes.POST("/markAppointment/:appointment_id", controllers.RemoveAppointmentFromQueue)
+		incomingRoutes.GET("/getRooms", middleware.AuthRequired("Staff", "Compounder"), controllers.GetRoomAssignments)
 
-	receptionistRoute := incomingRoutes.Group("/reception")
-	receptionistRoute.Use(middleware.AuthRequired("Staff", "Reception"))
-	{
-		receptionistRoute.POST("/staffotp", controllers.VerifyStaffOTP)
-		receptionistRoute.POST("/patientReg", func(c *gin.Context) {
-			c.Set("km", km)
-			controllers.RegisterPatient(c)
-		})
 	}
-	compounderRoute := incomingRoutes.Group("/compounder")
-	compounderRoute.Use(middleware.AuthRequired("Staff", "Compounder"))
-	{
-		incomingRoutes.POST("/compounderstafflogin", controllers.CompounderLogin)
-		compounderRoute.POST("/admit", func(c *gin.Context) {
-			c.Set("km", km)
-			controllers.AdmitPatientForHospitalization(c)
-		})
-		compounderRoute.POST("/hospitalise", func(c *gin.Context) {
-			c.Set("km", km)
-			controllers.AdmitPatient(c)
-		})
-	}
+
 }

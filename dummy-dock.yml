@@ -1,4 +1,4 @@
-# copy this file in docker-compose.yml and use host as localhost in database.go and fire go run main.go 
+# # copy this file in docker-compose.yml and use host as localhost in database.go and fire go run main.go 
 
 # services:
 #   redis:

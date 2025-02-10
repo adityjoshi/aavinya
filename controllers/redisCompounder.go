@@ -84,7 +84,7 @@ func SubscribeToAppointmentUpdates() {
 	}
 }
 
-func startPatientCountSubscriber() {
+func StartPatientCountSubscriber() {
 	// Subscribe to the "patient_count_update" channel
 	pubsub := database.RedisClient.Subscribe(context.Background(), "patient_count_update")
 	defer pubsub.Close()

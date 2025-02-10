@@ -8,6 +8,5 @@ import (
 
 func UserInfoRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/updatePatientInfo/:id", middleware.AuthRequired("Patient", ""), middleware.OtpAuthRequireed, controllers.AddPatientDetails)
-	// incomingRoutes.GET("/getPatientId/:id", middleware.AuthUser(), controllers.GetPatientDetails)
 
 }

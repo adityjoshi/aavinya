@@ -10,7 +10,6 @@ import (
 var RedisClient *redis.Client
 var Ctx = context.Background()
 
-// InitializeRedisClient initializes the Redis client
 func InitializeRedisClient() {
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     "redis-cache:6379",
@@ -18,14 +17,12 @@ func InitializeRedisClient() {
 		DB:       0,  // use default DB
 	})
 
-	// Check for the error
 	_, err := RedisClient.Ping(Ctx).Result()
 	if err != nil {
 		log.Fatalf("Redis is not connected: %v", err)
 	}
 }
 
-// GetRedisClient returns the Redis client, initializing it if necessary
 func GetRedisClient() *redis.Client {
 	if RedisClient == nil {
 		InitializeRedisClient()

@@ -48,6 +48,10 @@ func RegisterHospitalAdmin(c *gin.Context) {
 	// var existingUser database.HospitalAdmin
 	var existingUser database.HospitalAdmin
 	db, err := database.GetDBForRegion(admin.Region)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err := db.Where("email = ?", admin.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
 		return
@@ -117,6 +121,10 @@ func AdminLogin(c *gin.Context) {
 
 	var admin database.HospitalAdmin
 	db, err := database.GetDBForRegion(loginRequest.Region)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err := db.Where("email = ?", loginRequest.Email).First(&admin).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -442,6 +450,10 @@ func AddBedType(c *gin.Context) {
 	// Check if the bed type already exists for the hospital
 	var existingBedType database.BedsCount
 	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err := db.Where("hospital_id = ? AND type_name = ?", hospitalID, bedsCount.TypeName).First(&existingBedType).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Bed type already exists for this hospital"})
 		return
@@ -510,6 +522,10 @@ func UpdateTotalBeds(c *gin.Context) {
 	// Find the bed type for the given hospital
 	var bedType database.BedsCount
 	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
 	if err = db.Where("hospital_id = ? AND type_name = ?", hospitalID, bedData.TypeName).First(&bedType).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Bed type not found for this hospital"})
 		return
