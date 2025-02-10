@@ -12,14 +12,15 @@ import (
 func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 
 	adminRouting := incomingRoutes.Group("/hospitalAdmin")
+	adminRouting.POST("/adminLogin", middleware.RateLimiterMiddleware(2, time.Minute), controllers.AdminLogin)
+	adminRouting.POST("/adminOtp", middleware.AuthRequired("Admin", ""), controllers.VerifyAdminOTP)
 	adminRouting.Use(middleware.AuthRequired("Admin", ""))
 	{
 		adminRouting.POST("/registerHospitalAdmin", func(c *gin.Context) {
 			c.Set("km", km)
 			controllers.RegisterHospitalAdmin(c)
 		})
-		adminRouting.POST("/adminLogin", middleware.RateLimiterMiddleware(2, time.Minute), controllers.AdminLogin)
-		adminRouting.POST("/adminOtp", middleware.AuthRequired("Admin", ""), controllers.VerifyAdminOTP)
+
 		adminRouting.POST("/AdminRegisteringHospital", middleware.AuthRequired("Admin", ""), func(c *gin.Context) {
 			c.Set("km", km)
 			controllers.RegisterHospital(c)

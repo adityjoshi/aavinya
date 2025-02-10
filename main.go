@@ -83,6 +83,7 @@ func setupCORS() gin.HandlerFunc {
 	config.AllowOrigins = []string{
 		"http://localhost:5173",
 	}
+	config.AllowHeaders = []string{"Authorization", "Content-Type", "credentials", "region"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"} // Allow OPTIONS
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization", "Content-Type", "credentials", "region")
 	config.AllowCredentials = true
