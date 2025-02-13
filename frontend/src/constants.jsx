@@ -8,7 +8,7 @@ export const region={
 export const RoutesPathName = {
     SIGNUP_PAGE : '/signup',
     LOGIN_PAGE : '/login',
-    DASHBOARD_PAGE : '/',
+    DASHBOARD_PAGE : '/dashboard',
     // ADMINDASHBOARD_PAGE : '/admin',
     // COMPOUNDERDASHBOARD_PAGE : '/staff',
     LoginOTPVerification_Page :'/verifyotp',

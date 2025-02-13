@@ -13,8 +13,13 @@ import RegisterStaff from './pages/RegisterStaff';
 import AddBeds from './pages/AddBeds';
 import UpdateBeds from './pages/UpdateBeds';
 import MainLayout from './pages/layout/mainlayout';
+import { LandingPage } from './pages/landingPage/landingPage';
 
 const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <LandingPage />,  // Landing Page should be first
+  },
   {
     path: RoutesPathName.SIGNUP_PAGE,
     element: <Register />,
