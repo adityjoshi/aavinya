@@ -399,7 +399,6 @@ func RegisterStaff(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Staff created successfully",
 		"region":  regionStr,
-		// Optionally return the generated password
 	})
 }
 

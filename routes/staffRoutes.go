@@ -16,9 +16,10 @@ func StaffRoutes(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 	*/
 
 	compounderRoutes := incomingRoutes.Group("/compounder")
+	compounderRoutes.POST("/staffLogin", controllers.StaffLogin)
 	compounderRoutes.Use(middleware.AuthRequired("Staff", "Compounder"))
 	{
-		compounderRoutes.POST("/staffLogin", controllers.StaffLogin)
+
 		compounderRoutes.POST("/staffOtp", controllers.VerifyStaffOTP)
 		compounderRoutes.POST("/markCompounder", controllers.MarkPatientAsHospitalized)
 		compounderRoutes.GET("/get", controllers.GetRoomAssignments)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/adityjoshi/aavinya/kafka" // Correct path to producer
+	"github.com/adityjoshi/aavinya/kafka"
 )
 
 // KafkaManager is responsible for managing Kafka producers and sending messages to topics
@@ -18,13 +18,13 @@ func NewKafkaManager(northBrokers, southBrokers []string) (*KafkaManager, error)
 	// Initialize the North producer
 	northProducer, err := kafka.NewNorthProducer(northBrokers)
 	if err != nil {
-		return nil, fmt.Errorf("Error initializing North producer: %w", err)
+		return nil, fmt.Errorf("error initializing North producer: %w", err)
 	}
 
 	// Initialize the South producer
 	southProducer, err := kafka.NewSouthProducer(southBrokers)
 	if err != nil {
-		return nil, fmt.Errorf("Error initializing South producer: %w", err)
+		return nil, fmt.Errorf("error initializing North producer: %w", err)
 	}
 
 	// Return the KafkaManager instance with both producers
