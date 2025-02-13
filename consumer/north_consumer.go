@@ -130,10 +130,10 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 			return fmt.Errorf("failed to unmarshal staff data: %v", err)
 		}
 
-		password := generatePassword(staff.FullName, staff.Region)
+		password := generatePassword(staff.FullName, staff.ContactNumber)
 		staff.Password = password
 
-		// Hash the staff password
+		utils.SendLoginDetailsEmail(staff.Email, staff.FullName, staff.Password)
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(staff.Password), bcrypt.DefaultCost)
 		if err != nil {
 			log.Printf("Failed to hash password: %v", err)
@@ -241,20 +241,20 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		// Save the appointment to the North region database
 		if err := database.NorthDB.Create(&appointment).Error; err != nil {
-			log.Printf("Error saving appointment for patient %s on %s at %s: %v", appointment.PatientID, appointment.AppointmentDate, appointment.AppointmentTime, err)
-			return fmt.Errorf("Error saving appointment: %v", err)
+			log.Printf("Error saving appointment for patient %d on %s at %s: %v", appointment.PatientID, appointment.AppointmentDate, appointment.AppointmentTime, err)
+			return fmt.Errorf("error saving appointment: %v", err)
 		}
 
 		// Fetch doctor details from North region database
 		var doctor database.Doctors
 		if err := database.NorthDB.Where("doctor_id = ?", appointment.DoctorID).First(&doctor).Error; err != nil {
-			return fmt.Errorf("Error fetching doctor details: %v", err)
+			return fmt.Errorf("error fetching doctor details: %v", err)
 		}
 
 		// Fetch patient details from North region database
 		var user database.Patients
 		if err := database.NorthDB.Where("patient_id = ?", appointment.PatientID).First(&user).Error; err != nil {
-			return fmt.Errorf("Error fetching patient details: %v", err)
+			return fmt.Errorf("error fetching patient details: %v", err)
 		}
 
 		// Create booking time (current time, real-time timestamp when the appointment is created)
@@ -294,7 +294,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		// Publish to Redis with the correct channel name
 		if err := database.RedisClient.Publish(database.Ctx, channel, notificationMessage).Err(); err != nil {
 			log.Printf("Error publishing appointment notification to Redis for hospital %s, department %s: %v", hospitalID, doctor.Department, err)
-			return fmt.Errorf("Failed to notify via Redis for hospital %s, department %s: %v", hospitalID, doctor.Department, err)
+			return fmt.Errorf("failed to notify via Redis for hospital %s, department %s: %v", hospitalID, doctor.Department, err)
 		}
 
 		// Define the Redis key for the North region
@@ -304,14 +304,14 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		appointmentJSON, err := json.Marshal(appointment)
 		if err != nil {
 			log.Printf("Error marshaling appointment data: %v", err)
-			return fmt.Errorf("Error marshaling appointment: %v", err)
+			return fmt.Errorf("error marshaling appointment: %v", err)
 		}
 
 		// Push the appointment to the Redis list (acting as a queue)
 		err = database.RedisClient.LPush(database.Ctx, redisKey, appointmentJSON).Err()
 		if err != nil {
 			log.Printf("Error adding appointment to Redis queue: %v", err)
-			return fmt.Errorf("Error adding appointment to Redis queue: %v", err.Error())
+			return fmt.Errorf("error adding appointment to Redis queue: %v", err.Error())
 		}
 
 		fmt.Printf("Appointment for department %s added to Redis under key %s\n", doctor.Department, redisKey)
@@ -320,7 +320,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		return nil
 
-		log.Printf("Appointment successfully booked for patient %s with Dr. %s at %s", user.FullName, doctor.FullName, realTime)
+		log.Printf("appointment successfully booked for patient %s with Dr. %s at %s", user.FullName, doctor.FullName, realTime)
 
 	default:
 		// Handle any other topics or log an error if the topic is not recognized
@@ -330,9 +330,9 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 	return nil
 }
 
-func generatePassword(fullName, username string) string {
+func generatePassword(fullName, ContactNumber string) string {
 	// For simplicity, we combine full name and username to generate a password
-	return fmt.Sprintf("%s%s", fullName, username)
+	return fmt.Sprintf("%s%s", fullName, ContactNumber)
 }
 func publishPatientCountUpdate(region string, newCount int) {
 	message := fmt.Sprintf("Patient count updated for region %s: %d", region, newCount)
