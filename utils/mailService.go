@@ -24,9 +24,9 @@ func OtpRegistration(to, otp string) error {
     </body>
     </html>
     `
-	body := fmt.Sprintf("htmlBody")
-	body += fmt.Sprintf("*Best regards*\n")
-	body += fmt.Sprintf("*Team Swaasthaya*")
+	body := htmlBody
+	body += "*Best regards*\n"
+	body += "*Team Swaasthaya*"
 	message.SetBody("text/html", htmlBody)
 
 	//message.Attach("/home/Alex/lolcat.jpg")
