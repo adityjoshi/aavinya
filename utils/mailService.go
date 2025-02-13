@@ -118,12 +118,12 @@ func SendLoginDetailsEmail(patientEmail, patientName, password string) error {
 	htmlBody := `
     <html>
     <body>
-        <h1>Appointment Confirmation</h1>
+        <h1>Login Details</h1>
         <p>Dear ` + patientName + ` </p>
-        <p>Your appointment with Dr. ` + patientName + ` is about to come.</p>
-        <p><strong>Appointment Date:</strong> ` + patientEmail + `</p>
-        <p><strong>Appointment Time:</strong> ` + password + `</p>
-        <p>If you have any questions, please contact us.</p>
+        <p>Your Login details are : </p>
+        <p><strong>Email/Username</strong> ` + patientEmail + `</p>
+        <p><strong>Password</strong> ` + password + `</p>
+        <p>Don't share your password with anyone.</p>
         <p>Best regards,<br>Swaasthya</p>
     </body>
     </html>

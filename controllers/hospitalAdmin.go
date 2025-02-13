@@ -248,10 +248,15 @@ func RegisterHospital(c *gin.Context) {
 	}
 	hospital.Region = regionStr
 
-	// Retrieve the appropriate database based on region
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error connecting to regional database"})
+		return
+	}
+
+	var existingHospital database.Hospitals
+	if err := db.Where("admin_id = ?", adminIDUint).First(&existingHospital).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Hospital already exists for the admin "})
 		return
 	}
 
@@ -263,7 +268,6 @@ func RegisterHospital(c *gin.Context) {
 		}
 	}
 
-	// Generate the hospital username based on HospitalID, HospitalName, and AdminID
 	hospitalRegistration, err := json.Marshal(hospital)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal hospital admin data to JSON"})
@@ -273,17 +277,16 @@ func RegisterHospital(c *gin.Context) {
 	var errKafka error
 	switch regionStr {
 	case "north":
-		// Send to North region's Kafka topic
+
 		errKafka = kafkaManager.SendHospitalRegistrationMessage(regionStr, "hospital_registration", string(hospitalRegistration))
 	case "south":
-		// Send to South region's Kafka topic
+
 		errKafka = kafkaManager.SendHospitalRegistrationMessage(regionStr, "hospital_registration", string(hospitalRegistration))
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid region: %s", region)})
 		return
 	}
 
-	// Check if there was an error sending the message to Kafka
 	if errKafka != nil {
 		log.Printf("Failed to send hospital registration data to Kafka: %v", errKafka)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send data to Kafka"})
@@ -635,7 +638,6 @@ func GetTotalBeds(c *gin.Context) {
 		return
 	}
 
-	// Create a response that lists all the bed types with their total, available, and occupied counts
 	var bedDetails []gin.H
 	for _, bed := range beds {
 		bedDetails = append(bedDetails, gin.H{
