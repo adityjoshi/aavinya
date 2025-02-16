@@ -1,10 +1,144 @@
 import { useState } from "react"
-  ; ("use client")
 import { AnimatePresence, motion } from "framer-motion"
 import { Activity, Heart, Calendar } from "lucide-react"
-import { Sun, Moon, X, Menu, Phone, Mail, MapPin } from "lucide-react"
+import { Sun, Moon, X, Menu, Phone, Mail, MapPin, Send } from "lucide-react"
 import { useNavigate } from 'react-router-dom';
 import { RoutesPathName } from '../../constants';
+
+const ChatBot = ({ isOpen, onClose }) => {
+  const [messages, setMessages] = useState([
+    { type: 'bot', text: 'Hello! How can I help you today?' }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+
+  // Predefined questions and responses (partial match handling)
+  const predefinedQuestions = [
+    { keyword: "Swaasthya", response: "Swaasthya is a Centralized Hospital System designed to unify patient data across hospitals, improving healthcare management and service delivery." },
+    
+    { keyword: "doctors availability", response: "Our doctors are available during scheduled hours. You can check doctor availability and book an appointment through our website or app." },
+
+    { keyword: "appointments", response: "Patients can schedule and manage appointments in real-time through our system, reducing wait times and improving hospital workflow." },
+
+    { keyword: "emergency management", response: "Swaasthya provides real-time updates on ICU bed availability, medical equipment, and patient queues to ensure efficient emergency handling." },
+
+    { keyword: "hospital services", response: "We provide a wide range of medical services including general consultations, specialized treatments, diagnostics, surgeries, and emergency care." },
+
+    { keyword: "working hours", response: "Our hospital is open 24/7 for emergencies. OPD services are available from Monday to Saturday, 8 AM - 8 PM." },
+
+    { keyword: "insurance coverage", response: "We accept most major health insurance plans. For details on specific insurance providers, please contact our billing department." },
+    
+    { keyword: "about hospital", response: "Swaasthya connects multiple hospitals within a region, enabling seamless data sharing and better coordination among healthcare providers." },
+
+    { keyword: "ambulance service", response: "Yes, we provide 24/7 ambulance services. You can request an ambulance by calling our emergency helpline at [ambulance contact number]." },
+
+    { keyword: "emergency services", response: "Yes, we offer 24/7 emergency services. If you are facing a medical emergency, please visit our emergency department immediately." },
+
+    { keyword: "benefits", response: "Our system improves diagnosis speed, reduces treatment delays, optimizes resource management, and enhances data security in hospitals." }
+  ];
+
+  // Common greetings
+  const greetings = ["hi", "hello", "hey"];
+
+  // Function to get bot's response
+  const getBotResponse = (input) => {
+    const lowerCaseInput = input.toLowerCase();
+
+    // Check if the input contains a greeting (hi, hello, hey)
+    if (greetings.some(greeting => lowerCaseInput.includes(greeting))) {
+      return "Hello! How can I help you today?";
+    }
+
+    // Check for partial matches with predefined questions
+    for (let question of predefinedQuestions) {
+      if (lowerCaseInput.includes(question.keyword)) {
+        return question.response;
+      }
+    }
+
+    // If the user asks about services, suggest related services
+    if (lowerCaseInput.includes("service")) {
+      return "We offer the following services:\n1. Primary Care\n2. Specialist Consultations\n3. Diagnostics\n4. Preventive Care\n5. Emergency Services\n6. Telemedicine Services\n7. Prescription Refills";
+    }
+
+    // If no match is found
+    return "I'm sorry, I don't have specific information about that. Please contact our support team for more details.";
+  };
+
+  // Handle sending messages
+  const handleSendMessage = () => {
+    if (inputMessage.trim()) {
+      setMessages(prev => [...prev, { type: 'user', text: inputMessage }]);
+      setTimeout(() => {
+        setMessages(prev => [...prev, { type: 'bot', text: getBotResponse(inputMessage) }]);
+      }, 500);
+      setInputMessage('');
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-24 right-6 w-96 bg-white rounded-lg shadow-xl overflow-hidden dark:bg-gray-800 z-50"
+        >
+          {/* Header */}
+          <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
+            <h3 className="font-semibold">SWAASTHYA Assistant</h3>
+            <button onClick={onClose} className="hover:bg-blue-700 p-1 rounded">
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="h-72 overflow-y-auto p-4 space-y-4"> {/* Adjusted height */}
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-xs p-3 rounded-lg ${
+                    message.type === 'user'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white'
+                  }`}
+                >
+                  {message.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder="Type your message..."
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+              <button
+                onClick={handleSendMessage}
+                className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
+              >
+                <Send size={20} />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+
+
 
 
 export const LandingPage = () => {
@@ -12,18 +146,13 @@ export const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const navigate = useNavigate();
 
-
-
-
   return (
     <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
       <div className="bg-white dark:bg-gray-900 transition-colors duration-300">
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-sm transition-colors duration-300">
           <div className="container mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center">
-              <a href="#home">
-                <img src="/images/logo.png" alt="Swaasthya Logo" className="h-10 cursor-pointer" />
-              </a>
+              <img src="\images\logo.png" alt="Swaasthya Logo" className="h-10" />
               <span className="ml-2 font-semibold text-gray-800 dark:text-white">SWAASTHYA</span>
             </div>
             <div className="hidden md:flex space-x-6">
@@ -39,7 +168,7 @@ export const LandingPage = () => {
               >
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <button
+              <button 
                 onClick={() => navigate(RoutesPathName.SIGNUP_PAGE)}
                 className="hidden md:block px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-300">
                 Sign Up
@@ -56,7 +185,9 @@ export const LandingPage = () => {
           </div>
         </nav>
 
-        <AnimatePresence>{isMenuOpen && <MobileMenu closeMenu={() => setIsMenuOpen(false)} />}</AnimatePresence>
+        <AnimatePresence>
+          {isMenuOpen && <MobileMenu closeMenu={() => setIsMenuOpen(false)} />}
+        </AnimatePresence>
 
         <main className="pt-16">
           <HeroSection />
@@ -103,7 +234,8 @@ const MobileMenu = ({ closeMenu }) => (
       <NavLink href="#contact" onClick={closeMenu}>
         Contact
       </NavLink>
-      <button className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-300">
+      <button onClick={() => navigate('/login')}
+       className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-300">
         Sign Up
       </button>
     </div>
@@ -119,21 +251,18 @@ const HeroSection = () => (
         transition={{ duration: 0.5 }}
         className="md:w-1/2 mb-8 md:mb-0"
       >
-        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase mb-6">
-          — WE ARE SWAASTHYA
-        </p>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white ">
-          Seamless Healthcare Management for a Healthier Tomorrow
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          Seamless Healthcare Management
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-          Timely access to care is a right, not a luxury.
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          Empowering healthcare providers with cutting-edge technology for better patient care.
         </p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300"
         >
-          Explore More
+          Get Started
         </motion.button>
       </motion.div>
       <motion.div
@@ -142,12 +271,11 @@ const HeroSection = () => (
         transition={{ duration: 0.5, delay: 0.2 }}
         className="md:w-1/2"
       >
-        <img src="/images/doctor.jpg" alt="Healthcare Management" className="rounded-lg shadow-xl" />
+        <img src="\images\doctor.jpg" alt="Healthcare Management" className="rounded-lg shadow-xl" />
       </motion.div>
     </div>
   </section>
-);
-
+)
 
 const ServicesSection = () => (
   <section id="services" className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
@@ -270,13 +398,11 @@ const TestimonialCarousel = () => {
 const ContactSection = () => (
   <section id="contact" className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
     <div className="container mx-auto px-6 flex flex-col md:flex-row items-stretch shadow-lg rounded-lg overflow-hidden">
-      {/* Left Side */}
       <div className="w-full md:w-1/2 bg-blue-500 text-white p-10 flex flex-col justify-center">
         <h2 className="text-3xl font-bold mb-4">Let's Connect</h2>
         <p className="mb-4">Whether you have a question, or simply want to connect.</p>
         <p>Feel free to send me a message in the contact form.</p>
       </div>
-      {/* Right Side */}
       <div className="w-full md:w-1/2 bg-white dark:bg-gray-900 p-10 flex flex-col justify-center">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Contact</h2>
         <form className="space-y-4">
@@ -311,9 +437,7 @@ const ContactSection = () => (
       </div>
     </div>
   </section>
-);
-
-
+)
 
 const Footer = () => (
   <footer className="bg-gray-900 text-white py-12">
@@ -387,12 +511,23 @@ const Footer = () => (
   </footer>
 )
 
-const FAB = () => (
-  <motion.button
-    whileHover={{ scale: 1.1 }}
-    whileTap={{ scale: 0.9 }}
-    className="fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-lg"
-  >
-    <Phone size={24} />
-  </motion.button>
-)
+// Updated FAB component with ChatBot integration
+const FAB = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  return (
+    <>
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsChatOpen(true)}
+        className="fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-lg z-50"
+      >
+        <Phone size={24} />
+      </motion.button>
+      <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+    </>
+  );
+};
+
+export default LandingPage;
