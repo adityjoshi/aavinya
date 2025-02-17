@@ -331,7 +331,6 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 }
 
 func generatePassword(fullName, ContactNumber string) string {
-	// For simplicity, we combine full name and username to generate a password
 	return fmt.Sprintf("%s%s", fullName, ContactNumber)
 }
 func publishPatientCountUpdate(region string, newCount int) {

@@ -31,9 +31,10 @@ func StaffRoutes(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 
 	*/
 	receptionistRoutes := incomingRoutes.Group("/receptionist")
+	receptionistRoutes.POST("/staffLogin", controllers.StaffLogin)
 	receptionistRoutes.Use(middleware.AuthRequired("Staff", "Receptionist"))
 	{
-		receptionistRoutes.POST("/staffLogin", controllers.StaffLogin)
+
 		receptionistRoutes.POST("/staffOtp", controllers.VerifyStaffOTP)
 		receptionistRoutes.POST("/patientRegistration", func(c *gin.Context) {
 			c.Set("km", km)
