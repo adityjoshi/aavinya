@@ -42,5 +42,6 @@ func StaffRoutes(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 		})
 		receptionistRoutes.POST("/patientHospitaliseRequest", controllers.AdmitPatientForHospitalization)
 		receptionistRoutes.GET("/getDoctorsDetails", controllers.GetAllDoctorsData)
+		receptionistRoutes.GET("/getPatientDetails", controllers.GetAllPatientDetails)
 	}
 }
