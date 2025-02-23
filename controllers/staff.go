@@ -215,6 +215,7 @@ func RegisterPatient(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Patient registered successfully",
 		"patient": patient,
+		"StaffID": staffIDUint,
 	})
 }
 
@@ -621,15 +622,38 @@ func GetAllPatientDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
 		return
 	}
-	var patient database.Patients
+	staffID, exists := c.Get("staff_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	staffIDUint, ok := staffID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid staff ID"})
+		return
+	}
+	fmt.Print(staffIDUint)
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
 		return
 	}
-	if err = db.Find(&patient).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
+
+	var hospital database.HospitalStaff
+	err = db.Select("hospital_id").Where("staff_id = ?", staffIDUint).First(&hospital).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Hospital not found for this staff ID"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"patients": patient})
+	fmt.Printf("Hospital ID: %d\n", hospital.HospitalID)
+
+	var patients []database.Patients
+	err = db.Where("hospital_id = ?", hospital.HospitalID).Find(&patients).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No patients found for this hospital"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"patients": patients})
 }

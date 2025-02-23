@@ -23,6 +23,7 @@ func StaffRoutes(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 		compounderRoutes.POST("/staffOtp", controllers.VerifyStaffOTP)
 		compounderRoutes.POST("/markCompounder", controllers.MarkPatientAsHospitalized)
 		compounderRoutes.GET("/get", controllers.GetRoomAssignments)
+		compounderRoutes.GET("/getPatientDetails", controllers.GetAllPatientDetails)
 	}
 
 	/*
@@ -42,6 +43,6 @@ func StaffRoutes(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 		})
 		receptionistRoutes.POST("/patientHospitaliseRequest", controllers.AdmitPatientForHospitalization)
 		receptionistRoutes.GET("/getDoctorsDetails", controllers.GetAllDoctorsData)
-		receptionistRoutes.GET("/getPatientDetails", controllers.GetAllPatientDetails)
+		receptionistRoutes.GET("/getPatientDetails", middleware.OtpAuthRequireed, controllers.GetAllPatientDetails)
 	}
 }
