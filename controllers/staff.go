@@ -609,3 +609,27 @@ func AdmitPatient(c *gin.Context) {
 	// Return success response
 	c.JSON(http.StatusOK, gin.H{"message": "Patient admitted successfully"})
 }
+
+func GetAllPatientDetails(c *gin.Context) {
+	region, exists := c.Get("region")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized region"})
+		return
+	}
+	regionStr, ok := region.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
+		return
+	}
+	var patient database.Patients
+	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
+	if err = db.Find(&patient).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"patients": patient})
+}

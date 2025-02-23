@@ -381,3 +381,29 @@ func removeAppointmentFromQueue(redisKey string, appointID uint) error {
 
 	return nil
 }
+
+func GetAllDoctorsData(c *gin.Context) {
+	region, exists := c.Get("region")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized region"})
+		return
+	}
+	regionStr, ok := region.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
+		return
+	}
+	var doctors database.Doctors
+	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
+	if err = db.Find(&doctors).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Doctors not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"doctors": doctors,
+	})
+}
