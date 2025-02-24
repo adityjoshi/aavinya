@@ -484,13 +484,11 @@ func UpdateTotalBeds(c *gin.Context) {
 		Action    string `json:"action"`     // Action: "add" or "remove"
 	}
 
-	// Parse the JSON request body into the bedData struct
 	if err := c.BindJSON(&bedData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Get admin ID from JWT
 	adminID, exists := c.Get("admin_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -514,14 +512,12 @@ func UpdateTotalBeds(c *gin.Context) {
 		return
 	}
 
-	// Verify the admin's hospital
 	hospitalID, err := verifyAdminHospital(adminIDUint, regionStr)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Admin not authorized to update beds for this hospital"})
 		return
 	}
 
-	// Find the bed type for the given hospital
 	var bedType database.BedsCount
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
@@ -533,14 +529,11 @@ func UpdateTotalBeds(c *gin.Context) {
 		return
 	}
 
-	// Perform the add or remove action
 	switch bedData.Action {
 	case "add":
-		// Add beds
 		previousTotalBeds := bedType.TotalBeds
 		bedType.TotalBeds += uint(bedData.TotalBeds)
 
-		// Add rooms for the newly added beds
 		for i := previousTotalBeds + 1; i <= bedType.TotalBeds; i++ {
 			roomNumber := fmt.Sprintf("%s%d", strings.ToLower(bedData.TypeName), i)
 			newRoom := database.Room{
@@ -556,26 +549,22 @@ func UpdateTotalBeds(c *gin.Context) {
 		}
 
 	case "remove":
-		// Remove beds (ensure total beds don't go below zero)
 		if int(bedType.TotalBeds)-bedData.TotalBeds < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot remove more beds than available"})
 			return
 		}
 
-		// Remove unoccupied rooms first
 		var unoccupiedRooms []database.Room
 		if err := db.Where("hospital_id = ? AND bed_type = ? AND is_occupied = ?", hospitalID, bedData.TypeName, false).Order("room_number desc").Limit(bedData.TotalBeds).Find(&unoccupiedRooms).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find unoccupied rooms"})
 			return
 		}
 
-		// Ensure there are enough unoccupied rooms to remove
 		if len(unoccupiedRooms) < bedData.TotalBeds {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Not enough unoccupied rooms to remove"})
 			return
 		}
 
-		// Delete the unoccupied rooms
 		for _, room := range unoccupiedRooms {
 			if err := db.Delete(&room).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete room"})
@@ -583,7 +572,6 @@ func UpdateTotalBeds(c *gin.Context) {
 			}
 		}
 
-		// Update total beds
 		bedType.TotalBeds -= uint(bedData.TotalBeds)
 
 	default:
@@ -591,7 +579,6 @@ func UpdateTotalBeds(c *gin.Context) {
 		return
 	}
 
-	// Save the updated bed count
 	if err := db.Save(&bedType).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update bed count"})
 		return

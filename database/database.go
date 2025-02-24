@@ -147,7 +147,7 @@ type Doctors struct {
 	Department    Department `json:"department" gorm:"not null"`
 	Username      string     `json:"username" gorm:"unique;not null"`
 	Region        string     `json:"region"`
-	Password      string     `json:"password" `
+	Password      string     `json:"-"` //`json:"password" `
 }
 
 type Position string

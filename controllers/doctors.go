@@ -25,7 +25,6 @@ func RegisterDoctor(c *gin.Context) {
 		return
 	}
 
-	// Extract AdminID from JWT claims
 	adminID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -48,7 +47,6 @@ func RegisterDoctor(c *gin.Context) {
 		return
 	}
 
-	// Find the hospital associated with the admin
 	var hospital database.Hospitals
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
@@ -69,7 +67,6 @@ func RegisterDoctor(c *gin.Context) {
 
 	}
 	doctorData.Password = string(hashedPassword)
-	// Set HospitalID and HospitalName in doctor data
 	doctor := database.Doctors{
 		FullName:      doctorData.FullName,
 		Description:   doctorData.Description,
@@ -92,16 +89,12 @@ func RegisterDoctor(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Doctor registered successfully", "hospital_name": hospital.HospitalName})
 }
 func generatePassword(fullName, region string) string {
-	// fmt.Sprintf("%s%s", fullName, region)
 	return fmt.Sprintf("%s%s", fullName, region)
 }
 
-// Helper function to generate doctor username
 func generateDoctorUsername(hospitalID uint, doctorFullName string) string {
-	// Remove spaces from hospital name and doctor full name
 
 	doctorFullName = strings.ReplaceAll(doctorFullName, " ", "")
-	// Construct username
 	return fmt.Sprintf("%d%s", hospitalID, doctorFullName)
 }
 
@@ -393,7 +386,7 @@ func GetAllDoctorsData(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
 		return
 	}
-	var doctors database.Doctors
+	var doctors []database.Doctors
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
