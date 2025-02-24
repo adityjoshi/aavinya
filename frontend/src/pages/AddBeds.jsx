@@ -4,20 +4,17 @@ const AddBeds = () => {
   const [formData, setFormData] = useState({
     type_name: '',
     total_beds: '',
-    hospital_id: '',
-    is_occupied: false
+    hospital_id: ''
   });
 
   const [responseMessage, setResponseMessage] = useState('');
   const jwtToken = localStorage.getItem("jwtToken");
   const region = localStorage.getItem("region");
-  // const role = localStorage.getItem("role");
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value
+      [e.target.name]: e.target.value
     });
   };
 
@@ -51,14 +48,17 @@ const AddBeds = () => {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ marginBottom: '15px' }}>
           <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Bed Type Name:</label>
-          <input
-            type="text"
+          <select
             name="type_name"
             value={formData.type_name}
             onChange={handleChange}
             required
             style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
-          />
+          >
+            <option value="">Select Bed Type</option>
+            <option value="ICU">ICU</option>
+            <option value="General-ward">General Ward</option>
+          </select>
         </div>
         <div style={{ marginBottom: '15px' }}>
           <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Total Beds:</label>
@@ -69,16 +69,6 @@ const AddBeds = () => {
             onChange={handleChange}
             required
             style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ fontSize: '14px', color: '#555', marginBottom: '5px' }}>Is Occupied:</label>
-          <input
-            type="checkbox"
-            name="is_occupied"
-            checked={formData.is_occupied}
-            onChange={handleChange}
-            style={{ width: 'auto', marginTop: '5px' }}
           />
         </div>
         <button
@@ -99,7 +89,6 @@ const AddBeds = () => {
       </form>
       {responseMessage && <p style={{ textAlign: 'center', color: 'green', marginTop: '20px', fontSize: '16px' }}>{responseMessage}</p>}
     </div>
-
   );
 };
 

@@ -26,6 +26,12 @@ function AdminDashboard() {
       href: "/AddBed",
     },
     {
+      image: "/images/beds.jpg",
+      label: "Update Beds",
+      description: "Track and manage hospital bed availability in real-time.",
+      href: "/UpdateBed",
+    },
+    {
       image: "/images/staff.jpg",
       label: "Register Staff",
       description: "Expand your team by adding qualified staff members.",
@@ -69,6 +75,7 @@ function AdminDashboard() {
           ))}
         </section>
       </div>
+      
   );
 }
 
