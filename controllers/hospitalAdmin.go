@@ -656,3 +656,50 @@ func verifyAdminHospital(adminID uint, region string) (uint, error) {
 
 	return hospital.HospitalId, nil
 }
+
+func GetAllDoctorsDetailsAdmin(c *gin.Context) {
+	region, exists := c.Get("region")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized region"})
+		return
+	}
+	regionStr, ok := region.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid region type"})
+		return
+	}
+	adminID, exists := c.Get("admin_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminIDUint, ok := adminID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid staff ID"})
+		return
+	}
+
+	db, err := database.GetDBForRegion(regionStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
+		return
+	}
+
+	var hospital database.Hospitals
+	err = db.Select("hospital_id").Where("admin_id = ?", adminIDUint).First(&hospital).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Hospital not found for this staff ID"})
+		return
+	}
+	fmt.Printf("Hospital ID: %d\n", hospital.HospitalId)
+
+	var doctors []database.Doctors
+	err = db.Where("hospital_id = ?", hospital.HospitalId).Find(&doctors).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No patients found for this hospital"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"doctors": doctors})
+}

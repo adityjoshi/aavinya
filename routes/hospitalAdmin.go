@@ -26,6 +26,7 @@ func HospitalAdmin(incomingRoutes *gin.Engine, km *kafkamanager.KafkaManager) {
 			controllers.RegisterHospital(c)
 		})
 		adminRouting.POST("/Registerdoctor", middleware.AuthRequired("Admin", ""), controllers.RegisterDoctor)
+		adminRouting.GET("/getDoctorsAdmin", controllers.GetAllDoctorsDetailsAdmin)
 		/*
 		 to do: find the hopsital by admin id and region
 		*/
