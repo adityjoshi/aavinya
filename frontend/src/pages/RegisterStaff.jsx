@@ -25,7 +25,7 @@ const RegisterStaff = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:2426/admin/registerStaff', {
+            const response = await fetch('http://localhost:2426/hospitalAdmin/registerStaff', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

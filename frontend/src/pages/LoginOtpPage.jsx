@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthProvider";
 const roleEndpoints = {
   Admin: "http://localhost:2426/hospitalAdmin/adminOtp",
   Compounder: "http://localhost:2426/compounder/staffOtp",
-  Reception: "http://localhost:2426/receptionist/staffOtp"
+  Receptionist: "http://localhost:2426/receptionist/staffOtp"
 };
 
 export default function VerifyOtpPage() {
@@ -48,7 +48,7 @@ export default function VerifyOtpPage() {
 
       if (response.ok) {
         login(jwtToken, { email }, region);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         const errorData = await response.json();
         alert(errorData.error || "OTP verification failed");

@@ -24,7 +24,7 @@ function Dashboard() {
       return <AdminDashboard />;
     case 'Doctor':
       return <DoctorDashboard />;
-    case 'Reception':
+    case 'Receptionist':
       return <ReceptionistDashboard />;
     case 'Compounder':
       return <CompounderDashboard />;

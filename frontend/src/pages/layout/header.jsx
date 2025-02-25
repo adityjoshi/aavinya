@@ -17,9 +17,9 @@ export default function Header() {
   return (
     <header className="fixed top-0 right-0 h-16 bg-white shadow-sm flex items-center justify-end px-6 z-10 w-full">
       <div className="flex items-center space-x-4">
-        <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        {/* <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <Bell className="h-6 w-6 text-gray-600" />
-        </button>
+        </button> */}
         <div className="relative">
           <button
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"

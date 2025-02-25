@@ -40,6 +40,11 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar }) {
       label: 'Add Beds', 
       path: RoutesPathName.ADD_BED 
     },
+    { 
+      icon: Bed, 
+      label: 'Update Beds', 
+      path: RoutesPathName.UPDATE_BED 
+    },
   ];
 
   return (
