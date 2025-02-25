@@ -610,7 +610,6 @@ func AdmitPatient(c *gin.Context) {
 	// Return success response
 	c.JSON(http.StatusOK, gin.H{"message": "Patient admitted successfully"})
 }
-
 func GetAllPatientDetails(c *gin.Context) {
 	region, exists := c.Get("region")
 	if !exists {
@@ -633,7 +632,7 @@ func GetAllPatientDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid staff ID"})
 		return
 	}
-	fmt.Print(staffIDUint)
+
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
@@ -646,7 +645,6 @@ func GetAllPatientDetails(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Hospital not found for this staff ID"})
 		return
 	}
-	fmt.Printf("Hospital ID: %d\n", hospital.HospitalID)
 
 	var patients []database.Patients
 	err = db.Where("hospital_id = ?", hospital.HospitalID).Find(&patients).Error
@@ -655,7 +653,24 @@ func GetAllPatientDetails(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"patients": patients})
+	var patientResponses []map[string]interface{}
+	for _, patient := range patients {
+		patientData := map[string]interface{}{
+			"patient_id":     patient.PatientID,
+			"full_name":      patient.FullName,
+			"contact_number": patient.ContactNumber,
+			"address":        patient.Address,
+			"city":           patient.City,
+			"state":          patient.State,
+			"pin_code":       patient.PinCode,
+			"gender":         patient.Gender,
+			"hospital_id":    patient.HospitalID,
+			"region":         patient.Region,
+		}
+		patientResponses = append(patientResponses, patientData)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"patients": patientResponses})
 }
 
 func GetAllDoctorsDetails(c *gin.Context) {
