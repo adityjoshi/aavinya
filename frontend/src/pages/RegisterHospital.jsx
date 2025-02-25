@@ -27,8 +27,7 @@ const RegisterHospital = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = "your-authentication-token"; // Replace with the actual token or retrieve it dynamically
-            const response = await fetch('http://localhost:2426/registerhospital', {
+            const response = await fetch('http://localhost:2426/hospitalAdmin/AdminRegisteringHospital', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -17,6 +17,11 @@ export const RoutesPathName = {
     REGISTER_STAFF : '/RegisterStaff',
     ADD_BED : '/AddBed',
     UPDATE_BED : '/UpdateBed',
+    PATIENT_REGISTER : '/patientRegistration',
+    PATIENT_HOSPITALISE : '/patientHospitalise',
+    CREATE_APPOINTMENT : '/createAppointment',
+    GET_DOCTORS : '/doctors',
+    GET_PATIENTS : '/patients'
 }
 
 //export const apiLink = "http://localhost:3000"

@@ -5,7 +5,7 @@ const roleEndpoints = {
   Admin: "http://localhost:2426/hospitalAdmin/adminLogin",
   Compounder: "http://localhost:2426/compounder/staffLogin",
   Doctor: "http://localhost:2426/doctor/doctorLogin",
-  Reception: "http://localhost:2426/receptionist/stafflogin",
+  Receptionist: "http://localhost:2426/receptionist/staffLogin",
 };
 
 export default function LoginPage() {
@@ -44,7 +44,7 @@ export default function LoginPage() {
       localStorage.setItem("role", formData.role);
 
       if (formData.role === "Doctor") {
-        navigate("/");
+        navigate("/dashboard");
       } else {
         navigate("/verifyotp");
       }

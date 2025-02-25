@@ -14,11 +14,16 @@ import AddBeds from './pages/AddBeds';
 import UpdateBeds from './pages/UpdateBeds';
 import MainLayout from './pages/layout/mainlayout';
 import { LandingPage } from './pages/landingPage/landingPage';
+import PatientRegistration from './pages/PatientRegistration';
+import PatientHospitalise from './pages/PatientHospitalise';
+import CreateAppointment from './pages/CreateAppointment';
+import Doctors from './pages/Doctors';
+import Patients from './pages/Patients';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage />,  // Landing Page should be first
+    element: <LandingPage />,
   },
   {
     path: RoutesPathName.SIGNUP_PAGE,
@@ -33,49 +38,92 @@ const router = createBrowserRouter([
     element: <LoginOTPVerification />,
   },
   {
-    path: RoutesPathName.UPDATE_BED,
-    element: <UpdateBeds />,
-  },
-  {
-   
-    path: '/',
+    path: RoutesPathName.DASHBOARD_PAGE,
     element: (
       <PrivateRoute>
-        {/* <Dashboard > */}
-          <MainLayout />
-        {/* </Dashboard> */}
+          <Dashboard />
       </PrivateRoute>
     ),
-    children: [
-      {
-        path: RoutesPathName.DASHBOARD_PAGE,
-        element: <Dashboard />,
-      },
-      // {
-      //   path: RoutesPathName.ADMINDASHBOARD_PAGE,
-      //   element: <AdminDashboard />,
-      // },
-      // {
-      //   path: RoutesPathName.COMPOUNDERDASHBOARD_PAGE,
-      //   element: <CompounderDashboard />,
-      // },
-      {
-        path: RoutesPathName.REGISTER_DOC,
-        element: <RegisterDoctor />,
-      },
-      {
-        path: RoutesPathName.REGISTER_HOSPITAL,
-        element: <RegisterHospital />,
-      },
-      {
-        path: RoutesPathName.REGISTER_STAFF,
-        element: <RegisterStaff />,
-      },
-      {
-        path: RoutesPathName.ADD_BED,
-        element: <AddBeds />,
-      },
-    ],
+  },
+  {
+    path: RoutesPathName.REGISTER_DOC,
+    element: (
+      <PrivateRoute>
+        <RegisterDoctor />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.REGISTER_HOSPITAL,
+    element: (
+      <PrivateRoute>
+        <RegisterHospital />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.REGISTER_STAFF,
+    element: (
+      <PrivateRoute>
+        <RegisterStaff />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.ADD_BED,
+    element: (
+      <PrivateRoute>
+        <AddBeds />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.UPDATE_BED,
+    element: (
+      <PrivateRoute>
+        <UpdateBeds />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.PATIENT_REGISTER,
+    element: (
+      <PrivateRoute>
+        <PatientRegistration />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.PATIENT_HOSPITALISE,
+    element: (
+      <PrivateRoute>
+        <PatientHospitalise />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.CREATE_APPOINTMENT,
+    element: (
+      <PrivateRoute>
+        <CreateAppointment />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.GET_DOCTORS,
+    element: (
+      <PrivateRoute>
+        <Doctors />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.GET_PATIENTS,
+    element: (
+      <PrivateRoute>
+        <Patients />
+      </PrivateRoute>
+    ),
   },
 ]);
 
