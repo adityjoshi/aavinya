@@ -131,8 +131,11 @@ const AdmitPatient = () => {
                     }}>
                     <option value="">Select a Patient</option>
                     {patients.map((patient) => (
-                        <option key={patient.patient_id} value={patient.full_name}>
-                            {patient.full_name}
+                        // <option key={patient.patient_id} value={patient.full_name}>
+                        //     {patient.full_name}
+                        // </option>
+                        <option key={patient.patient_id} value={patient.email}>
+                            {patient.email}
                         </option>
                     ))}
                 </select>

@@ -632,7 +632,8 @@ func GetAllPatientDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid staff ID"})
 		return
 	}
-
+	fmt.Print(staffIDUint)	//changed
+	
 	db, err := database.GetDBForRegion(regionStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get database for region"})
@@ -646,31 +647,33 @@ func GetAllPatientDetails(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("Hospital ID: %d\n", hospital.HospitalID)	//changed
+
 	var patients []database.Patients
 	err = db.Where("hospital_id = ?", hospital.HospitalID).Find(&patients).Error
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No patients found for this hospital"})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"patients": patients})
+	// var patientResponses []map[string]interface{}
+	// for _, patient := range patients {
+	// 	patientData := map[string]interface{}{
+	// 		"patient_id":     patient.PatientID,
+	// 		"full_name":      patient.FullName,
+	// 		"contact_number": patient.ContactNumber,
+	// 		"address":        patient.Address,
+	// 		"city":           patient.City,
+	// 		"state":          patient.State,
+	// 		"pin_code":       patient.PinCode,
+	// 		"gender":         patient.Gender,
+	// 		"hospital_id":    patient.HospitalID,
+	// 		"region":         patient.Region,
+	// 	}
+	// 	patientResponses = append(patientResponses, patientData)
+	// }
 
-	var patientResponses []map[string]interface{}
-	for _, patient := range patients {
-		patientData := map[string]interface{}{
-			"patient_id":     patient.PatientID,
-			"full_name":      patient.FullName,
-			"contact_number": patient.ContactNumber,
-			"address":        patient.Address,
-			"city":           patient.City,
-			"state":          patient.State,
-			"pin_code":       patient.PinCode,
-			"gender":         patient.Gender,
-			"hospital_id":    patient.HospitalID,
-			"region":         patient.Region,
-		}
-		patientResponses = append(patientResponses, patientData)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"patients": patientResponses})
+	// c.JSON(http.StatusOK, gin.H{"patients": patientResponses})
 }
 
 func GetAllDoctorsDetails(c *gin.Context) {
