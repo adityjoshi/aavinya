@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 const AddBeds = () => {
   const [formData, setFormData] = useState({
     type_name: '',
-    total_beds: '',
-    hospital_id: ''
+    total_beds: ''
   });
 
   const [responseMessage, setResponseMessage] = useState('');
@@ -20,22 +19,30 @@ const AddBeds = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Convert total_beds to number
+    const payload = {
+      type_name: formData.type_name,
+      total_beds: parseInt(formData.total_beds, 10)  // backend expects number
+    };
+
     try {
       const response = await fetch('http://localhost:2426/hospitalAdmin/registerBeds', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": jwtToken,
-          "Region": region,
+          'Authorization': jwtToken,
+          'Region': region,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(response.statusText);
+        throw new Error(data.error || 'Error adding bed record.');
       }
 
-      const data = await response.json();
       setResponseMessage(data.message || 'Bed record added successfully!');
     } catch (error) {
       setResponseMessage(error.message || 'Error adding bed record.');
@@ -68,6 +75,7 @@ const AddBeds = () => {
             value={formData.total_beds}
             onChange={handleChange}
             required
+            min="1"
             style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px', color: '#333' }}
           />
         </div>
@@ -87,7 +95,11 @@ const AddBeds = () => {
           Add Bed
         </button>
       </form>
-      {responseMessage && <p style={{ textAlign: 'center', color: 'green', marginTop: '20px', fontSize: '16px' }}>{responseMessage}</p>}
+      {responseMessage && (
+        <p style={{ textAlign: 'center', color: responseMessage.includes("success") ? 'green' : 'red', marginTop: '20px', fontSize: '16px' }}>
+          {responseMessage}
+        </p>
+      )}
     </div>
   );
 };

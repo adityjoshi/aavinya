@@ -7,71 +7,47 @@ import { RoutesPathName } from '../../constants';
 
 const ChatBot = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hello! How can I help you today?' }
+    { type: "bot", text: "Hello! How can I help you today?" },
   ]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
 
-  // Predefined questions and responses (partial match handling)
-  const predefinedQuestions = [
-    { keyword: "Swaasthya", response: "Swaasthya is a Centralized Hospital System designed to unify patient data across hospitals, improving healthcare management and service delivery." },
-    
-    { keyword: "doctors availability", response: "Our doctors are available during scheduled hours. You can check doctor availability and book an appointment through our website or app." },
-
-    { keyword: "appointments", response: "Patients can schedule and manage appointments in real-time through our system, reducing wait times and improving hospital workflow." },
-
-    { keyword: "emergency management", response: "Swaasthya provides real-time updates on ICU bed availability, medical equipment, and patient queues to ensure efficient emergency handling." },
-
-    { keyword: "hospital services", response: "We provide a wide range of medical services including general consultations, specialized treatments, diagnostics, surgeries, and emergency care." },
-
-    { keyword: "working hours", response: "Our hospital is open 24/7 for emergencies. OPD services are available from Monday to Saturday, 8 AM - 8 PM." },
-
-    { keyword: "insurance coverage", response: "We accept most major health insurance plans. For details on specific insurance providers, please contact our billing department." },
-    
-    { keyword: "about hospital", response: "Swaasthya connects multiple hospitals within a region, enabling seamless data sharing and better coordination among healthcare providers." },
-
-    { keyword: "ambulance service", response: "Yes, we provide 24/7 ambulance services. You can request an ambulance by calling our emergency helpline at [ambulance contact number]." },
-
-    { keyword: "emergency services", response: "Yes, we offer 24/7 emergency services. If you are facing a medical emergency, please visit our emergency department immediately." },
-
-    { keyword: "benefits", response: "Our system improves diagnosis speed, reduces treatment delays, optimizes resource management, and enhances data security in hospitals." }
-  ];
-
-  // Common greetings
-  const greetings = ["hi", "hello", "hey"];
-
-  // Function to get bot's response
-  const getBotResponse = (input) => {
-    const lowerCaseInput = input.toLowerCase();
-
-    // Check if the input contains a greeting (hi, hello, hey)
-    if (greetings.some(greeting => lowerCaseInput.includes(greeting))) {
-      return "Hello! How can I help you today?";
-    }
-
-    // Check for partial matches with predefined questions
-    for (let question of predefinedQuestions) {
-      if (lowerCaseInput.includes(question.keyword)) {
-        return question.response;
-      }
-    }
-
-    // If the user asks about services, suggest related services
-    if (lowerCaseInput.includes("service")) {
-      return "We offer the following services:\n1. Primary Care\n2. Specialist Consultations\n3. Diagnostics\n4. Preventive Care\n5. Emergency Services\n6. Telemedicine Services\n7. Prescription Refills";
-    }
-
-    // If no match is found
-    return "I'm sorry, I don't have specific information about that. Please contact our support team for more details.";
-  };
-
-  // Handle sending messages
-  const handleSendMessage = () => {
+  // Function to send user message to the backend and get bot response
+  const handleSendMessage = async () => {
     if (inputMessage.trim()) {
-      setMessages(prev => [...prev, { type: 'user', text: inputMessage }]);
-      setTimeout(() => {
-        setMessages(prev => [...prev, { type: 'bot', text: getBotResponse(inputMessage) }]);
-      }, 500);
-      setInputMessage('');
+      // Add user message to the chat
+      const userMessage = { type: "user", text: inputMessage };
+      setMessages((prev) => [...prev, userMessage]);
+
+      try {
+        // Make a POST request to the backend
+        const res = await fetch("https://faq-cb.onrender.com/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: inputMessage }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch bot response");
+        }
+
+        const data = await response.json();
+
+        // Add bot response to the chat
+        const botMessage = { type: "bot", text: data.response };
+        setMessages((prev) => [...prev, botMessage]);
+      } catch (error) {
+        console.error("Error fetching bot response:", error);
+        const errorMessage = {
+          type: "bot",
+          text: "Sorry, I'm having trouble responding. Please try again later.",
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      }
+
+      // Clear the input field
+      setInputMessage("");
     }
   };
 
@@ -93,17 +69,17 @@ const ChatBot = ({ isOpen, onClose }) => {
           </div>
 
           {/* Messages */}
-          <div className="h-72 overflow-y-auto p-4 space-y-4"> {/* Adjusted height */}
+          <div className="h-72 overflow-y-auto p-4 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-xs p-3 rounded-lg ${
-                    message.type === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white'
+                    message.type === "user"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white"
                   }`}
                 >
                   {message.text}
@@ -119,7 +95,7 @@ const ChatBot = ({ isOpen, onClose }) => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Type your message..."
                 className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
@@ -136,9 +112,6 @@ const ChatBot = ({ isOpen, onClose }) => {
     </AnimatePresence>
   );
 };
-
-
-
 
 
 export const LandingPage = () => {
