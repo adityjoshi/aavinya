@@ -48,8 +48,7 @@ Swaasthya follows a scalable microservices architecture, ensuring efficient hand
 - **Database**: PostgreSQL
 - **Cache & OTP**: Redis
 - **Real-Time Notifications**: Redis
-
-> **Note**: Kafka will be integrated in the future for real-time data streaming and enhanced event processing.
+- **Kafka**:real-time data streaming and enhanced event processing.
 
 ## Installation
 
