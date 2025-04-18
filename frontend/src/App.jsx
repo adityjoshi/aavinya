@@ -2,8 +2,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import CompounderDashboard from './pages/CompounderDashboard';
 import LoginOTPVerification from './pages/LoginOtpPage';
 import { RoutesPathName } from './constants';
 import PrivateRoute from './context/PrivateRoute';
@@ -19,6 +17,8 @@ import PatientHospitalise from './pages/PatientHospitalise';
 import CreateAppointment from './pages/CreateAppointment';
 import Doctors from './pages/Doctors';
 import Patients from './pages/Patients';
+import RemoveAppointment from './pages/RemoveAppointment';
+import MarkAppointment from './pages/MarkAppointment';
 
 const router = createBrowserRouter([
   {
@@ -122,6 +122,22 @@ const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <Patients />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.REMOVE_APPOINTMENT,
+    element: (
+      <PrivateRoute>
+        <RemoveAppointment />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: RoutesPathName.MARK_APPOINTMENT,
+    element: (
+      <PrivateRoute>
+        <MarkAppointment />
       </PrivateRoute>
     ),
   },

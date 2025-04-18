@@ -21,7 +21,9 @@ export const RoutesPathName = {
     PATIENT_HOSPITALISE : '/patientHospitalise',
     CREATE_APPOINTMENT : '/createAppointment',
     GET_DOCTORS : '/doctors',
-    GET_PATIENTS : '/patients'
+    GET_PATIENTS : '/patients',
+    REMOVE_APPOINTMENT: '/removeAppointment',
+    MARK_APPOINTMENT: '/markAppointment'
 }
 
 //export const apiLink = "http://localhost:3000"

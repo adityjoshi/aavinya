@@ -20,6 +20,12 @@ function AdminDashboard() {
       href: "/RegisterHospital",
     },
     {
+      image: "/images/staff.jpg",
+      label: "Register Staff",
+      description: "Expand your team by adding qualified staff members.",
+      href: "/RegisterStaff",
+    },
+    {
       image: "/images/beds.jpg",
       label: "Add Beds",
       description: "Track and manage hospital bed availability in real-time.",
@@ -31,15 +37,10 @@ function AdminDashboard() {
       description: "Track and manage hospital bed availability in real-time.",
       href: "/UpdateBed",
     },
-    {
-      image: "/images/staff.jpg",
-      label: "Register Staff",
-      description: "Expand your team by adding qualified staff members.",
-      href: "/RegisterStaff",
-    },
   ];
 
   return (
+    <MainLayout>
       <div className="p-6 flex flex-col">
         <h1>ADMIN DASHBOARD</h1>
         {/* Action Cards Section */}
@@ -75,7 +76,7 @@ function AdminDashboard() {
           ))}
         </section>
       </div>
-      
+    </MainLayout>
   );
 }
 
