@@ -2,13 +2,12 @@ package utils
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte(os.Getenv("JWTSECRET"))
+var jwtSecret = []byte("JWT123")
 
 // GenerateJwt generates a JWT token with specific claims for patients or admins.
 func GenerateJwt(userID uint, userType, role, region string) (string, error) {

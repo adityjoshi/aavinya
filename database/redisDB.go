@@ -13,8 +13,8 @@ var Ctx = context.Background()
 func InitializeRedisClient() {
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     "redis-cache:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0,
 	})
 
 	_, err := RedisClient.Ping(Ctx).Result()

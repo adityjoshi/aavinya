@@ -7,27 +7,25 @@ import (
 	"github.com/adityjoshi/aavinya/consumer"
 	"github.com/adityjoshi/aavinya/controllers"
 	"github.com/adityjoshi/aavinya/database"
-	"github.com/adityjoshi/aavinya/initiliazers"
 	kafkamanager "github.com/adityjoshi/aavinya/kafka/kafkaManager"
 	"github.com/adityjoshi/aavinya/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 var km *kafkamanager.KafkaManager
 
-func init() {
-	initiliazers.LoadEnvVariable()
-}
+// func init() {
+// 	initiliazers.LoadEnvVariable()
+// }
 
 func main() {
 	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	database.InitDatabase()
 	defer database.CloseDatabase()
@@ -84,13 +82,12 @@ func setupCORS() gin.HandlerFunc {
 		"http://localhost:5173",
 	}
 	config.AllowHeaders = []string{"Authorization", "Content-Type", "credentials", "region"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"} // Allow OPTIONS
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization", "Content-Type", "credentials", "region")
 	config.AllowCredentials = true
 	return cors.New(config)
 }
 
-// setupSessions configures session management
 func setupSessions(router *gin.Engine) {
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("session", store))

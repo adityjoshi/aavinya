@@ -16,34 +16,34 @@ var (
 
 func InitDatabase() {
 	var err error
-	// Main DB connection (hosp)
-	dsn := "host=host.docker.internal user=postgres password=aditya dbname=hosp port=5432"
+
+	// DSN for the Default DB
+	dsn := "host=host.docker.internal user=postgres password=postgres dbname=hosp port=5432"
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect to default database")
 	} else {
 		fmt.Println("Database connected successfully ⚡️")
 	}
 
-	// North DB connection (northdb)
-	Northdsn := "host=host.docker.internal user=postgres password=aditya dbname=northdb port=5432"
+	// DSN for the North DB
+	Northdsn := "host=host.docker.internal user=postgres password=postgres dbname=northdb port=5432"
 	NorthDB, err = gorm.Open(postgres.Open(Northdsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect North database")
+		panic("failed to connect to North database")
 	} else {
 		fmt.Println("North database connected successfully ⚡️")
 	}
 
-	// South DB connection (southdb)
-	Southdsn := "host=host.docker.internal user=postgres password=aditya dbname=southdb port=5432"
+	// DSN for the South DB
+	Southdsn := "host=host.docker.internal user=postgres password=postgres dbname=southdb port=5432"
 	SouthDB, err = gorm.Open(postgres.Open(Southdsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect South database")
+		panic("failed to connect to South database")
 	} else {
 		fmt.Println("South database connected successfully ⚡️")
 	}
 
-	// Migrate the schema for each database
 	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{}, &Room{}, &PatientBeds{})
 	NorthDB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{}, &Room{}, &PatientBeds{})
 	SouthDB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{}, &Room{}, &PatientBeds{})
@@ -109,6 +109,14 @@ type HospitalAdmin struct {
 	Usertype      UserType `json:"user_type" gorm:"not null"`
 }
 
+type Position string
+
+const (
+	Billing    Position = "Billing"
+	Compounder Position = "Compounder"
+	Reception  Position = "Reception"
+)
+
 type Hospitals struct {
 	HospitalId    uint   `json:"hospital_id" gorm:"primaryKey;autoIncrement"`
 	HospitalName  string `json:"hospital_name" gorm:"not null"`
@@ -149,14 +157,6 @@ type Doctors struct {
 	Region        string     `json:"region"`
 	Password      string     `json:"-"` //`json:"password" `
 }
-
-type Position string
-
-const (
-	Billing    Position = "Billing"
-	Compounder Position = "Compounder"
-	Reception  Position = "Reception"
-)
 
 type HospitalStaff struct {
 	StaffID       uint     `json:"staff_id" gorm:"primaryKey;autoIncrement"`

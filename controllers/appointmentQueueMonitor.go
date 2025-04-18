@@ -20,7 +20,7 @@ func CheckAppointmentsQueue() {
 	for _, region := range regions {
 		for _, department := range departments {
 			for _, hospitalID := range hospitalIDs {
-				// Start the process for each region, department, and hospital
+
 				go monitorQueueForDepartment(region, hospitalID, department)
 			}
 		}

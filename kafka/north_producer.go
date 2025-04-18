@@ -7,12 +7,10 @@ import (
 	"github.com/IBM/sarama"
 )
 
-// NorthProducer represents the Kafka producer for the North region
 type NorthProducer struct {
 	producer sarama.SyncProducer
 }
 
-// NewNorthProducer initializes and returns a new NorthProducer
 func NewNorthProducer(brokers []string) (*NorthProducer, error) {
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -27,7 +25,6 @@ func NewNorthProducer(brokers []string) (*NorthProducer, error) {
 	return &NorthProducer{producer: producer}, nil
 }
 
-// SendMessage sends a message to a specific topic in the North region
 func (p *NorthProducer) SendMessage(topic, message string) error {
 	log.Printf("Producer received message: %s", message)
 	msg := &sarama.ProducerMessage{

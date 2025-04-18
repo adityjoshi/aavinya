@@ -19,12 +19,10 @@ type NorthConsumer struct {
 	Topics   []string
 }
 
-// NewNorthConsumer initializes a new Kafka consumer for the north region (multiple topics)
 func NewNorthConsumer(broker string, topics []string) (*NorthConsumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 
-	// Create the consumer
 	consumer, err := sarama.NewConsumer([]string{broker}, config)
 	if err != nil {
 		log.Printf("Error creating consumer: %v", err)
@@ -33,7 +31,6 @@ func NewNorthConsumer(broker string, topics []string) (*NorthConsumer, error) {
 
 	log.Printf("Kafka consumer created successfully, subscribing to topics: %v", topics)
 
-	// Return a NorthConsumer instance with the list of topics
 	return &NorthConsumer{Consumer: consumer, Topics: topics}, nil
 }
 
