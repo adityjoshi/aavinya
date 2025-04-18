@@ -18,7 +18,7 @@ import (
 )
 
 func RegisterHospitalAdmin(c *gin.Context) {
-	// Retrieve KafkaManager from the context
+
 	km, exists := c.Get("km")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "KafkaManager not found"})
@@ -33,13 +33,11 @@ func RegisterHospitalAdmin(c *gin.Context) {
 
 	var admin database.HospitalAdmin
 
-	// Bind incoming JSON request to the HospitalAdmin struct
 	if err := c.BindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Default the Usertype if not provided
 	if admin.Usertype == "" {
 		admin.Usertype = "Admin"
 	}

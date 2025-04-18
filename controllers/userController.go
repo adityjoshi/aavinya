@@ -19,17 +19,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Debugging output
 	fmt.Printf("Received user data: %+v\n", newUser)
 
-	// Check if user already exists
 	var existingUser database.Users
 	if err := database.DB.Where("email = ?", newUser.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
 		return
 	}
 
-	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
@@ -37,7 +34,6 @@ func Register(c *gin.Context) {
 	}
 	newUser.Password = string(hashedPassword)
 
-	// Create new user record
 	if err := database.DB.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -85,27 +81,23 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Retrieve user from database
 	var user database.Users
 	if err := database.DB.Where("email = ? ", loginRequest.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
-	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Password"})
 		return
 	}
 
-	// Generate and send OTP
 	otp, err := GenerateAndSendOTP(loginRequest.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate or send OTP" + otp})
 		return
 	}
 
-	// Respond with message to enter OTP
 	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP."})
 }
 
@@ -119,7 +111,6 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Verify the OTP
 	isValid, err := VerifyOtp(otpRequest.Email, otpRequest.OTP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error verifying OTP"})
@@ -130,7 +121,6 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Retrieve user information after OTP verification
 	var user database.Users
 	if err := database.DB.Where("email = ?", otpRequest.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})

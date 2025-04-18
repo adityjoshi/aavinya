@@ -17,22 +17,14 @@ import (
 
 var km *kafkamanager.KafkaManager
 
-// func init() {
-// 	initiliazers.LoadEnvVariable()
-// }
-
 func main() {
-	// Load environment variables
-	// if err := godotenv.Load(); err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
 
 	database.InitDatabase()
 	defer database.CloseDatabase()
 	database.InitializeRedisClient()
 
-	northBrokers := []string{"kafka-broker:9092"}
-	southBrokers := []string{"kafka-broker:9092"}
+	northBrokers := []string{"kafka:9092"}
+	southBrokers := []string{"kafka:9092"}
 
 	var err error
 	km, err = kafkamanager.NewKafkaManager(northBrokers, southBrokers)
@@ -56,20 +48,17 @@ func main() {
 	go controllers.SubscribeToAppointmentUpdates()
 	go controllers.StartPatientCountSubscriber()
 
-	// Setup the HTTP server with Gin
 	router := gin.Default()
 	router.Use(setupCORS())
 	setupSessions(router)
 	setupRoutes(router)
 
-	// Start server
 	server := &http.Server{
 		Addr:    ":2426",
 		Handler: router,
 	}
 	log.Println("Server is running at :2426...")
 
-	// Keep main function running indefinitely
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}

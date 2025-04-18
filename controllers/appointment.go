@@ -66,7 +66,6 @@ func CreateAppointment(c *gin.Context) {
 		Description:     appointmentData.Description,
 	}
 
-	// Generate the hospital username based on HospitalID, HospitalName, and AdminID
 	appointments, err := json.Marshal(appointment)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal hospital admin data to JSON"})
@@ -76,23 +75,19 @@ func CreateAppointment(c *gin.Context) {
 	var errKafka error
 	switch regionStr {
 	case "north":
-		// Send to North region's Kafka topic
 		errKafka = kafkaManager.SendHospitalRegistrationMessage(regionStr, "appointment_reg", string(appointments))
 	case "south":
-		// Send to South region's Kafka topic
 		errKafka = kafkaManager.SendHospitalRegistrationMessage(regionStr, "appointment_reg", string(appointments))
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid region: %s", region)})
 		return
 	}
 
-	// Check if there was an error sending the message to Kafka
 	if errKafka != nil {
 		log.Printf("Failed to send hospital registration data to Kafka: %v", errKafka)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send data to Kafka"})
 		return
 	}
-	// Send appointment email to the user
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Appointment created successfully", "appointment_id": appointment.AppointmentID})
 }

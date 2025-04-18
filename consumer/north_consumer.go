@@ -34,7 +34,6 @@ func NewNorthConsumer(broker string, topics []string) (*NorthConsumer, error) {
 	return &NorthConsumer{Consumer: consumer, Topics: topics}, nil
 }
 
-// Listen starts the consumer and listens for messages on the specified topics
 func (nc *NorthConsumer) Listen() {
 	defer func() {
 		if err := nc.Consumer.Close(); err != nil {
@@ -42,7 +41,6 @@ func (nc *NorthConsumer) Listen() {
 		}
 	}()
 
-	// Create a consumer for each topic, listening to partition 0 for each one
 	for _, topic := range nc.Topics {
 		partitionConsumer, err := nc.Consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
 		if err != nil {
@@ -50,25 +48,20 @@ func (nc *NorthConsumer) Listen() {
 		}
 		defer partitionConsumer.Close()
 
-		// Log that the consumer has started listening
 		log.Printf("Consumer is now listening to topic: %s from partition 0\n", topic)
 
-		// Start a goroutine for each topic to consume messages concurrently
 		go nc.consumeMessages(partitionConsumer)
 	}
 
-	// Block indefinitely (since we're listening to multiple topics concurrently)
 	select {}
 }
 
-// consumeMessages handles message consumption for each topic
 func (nc *NorthConsumer) consumeMessages(partitionConsumer sarama.PartitionConsumer) {
 	for msg := range partitionConsumer.Messages() {
-		// Log received message and metadata
+
 		log.Printf("Received message from topic %s: %s\n", msg.Topic, string(msg.Value))
 		log.Printf("Message metadata - Partition: %d, Offset: %d\n", msg.Partition, msg.Offset)
 
-		// Process the message (e.g., save data to the database or trigger further actions)
 		if err := processMessage(msg.Topic, msg); err != nil {
 			log.Printf("Error processing message: %v", err)
 		} else {
@@ -77,7 +70,6 @@ func (nc *NorthConsumer) consumeMessages(partitionConsumer sarama.PartitionConsu
 	}
 }
 
-// processMessage is a placeholder function for processing the received Kafka message
 func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 	if database.NorthDB == nil {
 		log.Fatal("NorthDB is not initialized!")
@@ -87,7 +79,7 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 	log.Printf("Processing message: %s \n", string(msg.Value))
 	switch topic {
 	case "hospital_admin":
-		// Process hospital admin messages
+
 		log.Printf("Processing hospital_admin message: %s", string(msg.Value))
 
 		var admin database.HospitalAdmin
@@ -97,9 +89,8 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		}
 		if err := database.NorthDB.Create(&admin); err != nil {
 			log.Printf("Failed to save hospital_admin data: %v", err.Error)
-			return fmt.Errorf("Failed to write to the DB", err.Error, err)
+			return fmt.Errorf("failed to write to the DB", err.Error, err)
 		}
-		// Add your logic for processing hospital_admin messages here
 
 	case "hospital_registration":
 		log.Printf("Processing hospital_registration message: %s", string(msg.Value))
@@ -139,7 +130,6 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 		staff.Password = string(hashedPassword)
 		staff.Username = fmt.Sprintf("%s%s", staff.ContactNumber, strings.ReplaceAll(strings.ToLower(staff.FullName), " ", ""))
 
-		// Save the staff to the database
 		if err := database.NorthDB.Create(&staff).Error; err != nil {
 			log.Printf("Failed to save staff data to database: %v", err)
 			return fmt.Errorf("failed to save staff data to database: %v", err)
@@ -182,10 +172,9 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 			return err
 		}
 
-		message := fmt.Sprintf("Patient %s with ID %d is coming for hospitalization and has been assigned bed number %d.", patient_Admit.PatientID, patient_Admit.FullName, patient_Admit.PatientRoomNo, patient_Admit.PatientRoomNo)
+		message := fmt.Sprintf("patient %s with ID %d is coming for hospitalization and has been assigned bed number %d.", patient_Admit.PatientID, patient_Admit.FullName, patient_Admit.PatientRoomNo, patient_Admit.PatientRoomNo)
 		publishPatientCountUpdate("North", 1)
 
-		// Publish the message to Redis to notify other services (e.g., compounder, dashboard)
 		if err := database.RedisClient.Publish(database.Ctx, "patient_admission", message).Err(); err != nil {
 			log.Printf("Error publishing patient admission notification to Redis: %v", err)
 			return fmt.Errorf("failed to notify compounder via Redis: %v", err)
@@ -317,12 +306,10 @@ func processMessage(topic string, msg *sarama.ConsumerMessage) error {
 
 		return nil
 
-		log.Printf("appointment successfully booked for patient %s with Dr. %s at %s", user.FullName, doctor.FullName, realTime)
-
 	default:
-		// Handle any other topics or log an error if the topic is not recognized
+
 		log.Printf("Received message from unknown topic: %s", topic)
-		// Add your default logic here
+
 	}
 	return nil
 }
